@@ -24,7 +24,7 @@ export default function ReportForm() {
   const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
   const [comment, setComment] = useState("");
   const [submitterName, setSubmitterName] = useState("");
-  const [gpsStatus, setGpsStatus] = useState<"idle" | "loading" | "found" | "error">("idle");
+  const [gpsStatus, setGpsStatus] = useState<"idle" | "loading" | "found" | "denied" | "error">("idle");
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -46,18 +46,42 @@ export default function ReportForm() {
     );
   };
 
-  const detectLocation = () => {
+  const detectLocation = async () => {
+    if (!navigator.geolocation) {
+      setGpsStatus("error");
+      return;
+    }
+
+    // Проверяем текущее состояние разрешения (если браузер поддерживает)
+    if (navigator.permissions) {
+      const perm = await navigator.permissions.query({ name: "geolocation" });
+      if (perm.state === "denied") {
+        setGpsStatus("denied");
+        return;
+      }
+    }
+
     setGpsStatus("loading");
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
         setGpsStatus("found");
       },
-      () => {
-        setGpsStatus("error");
-      }
+      (err) => {
+        if (err.code === err.PERMISSION_DENIED) {
+          setGpsStatus("denied");
+        } else {
+          setGpsStatus("error");
+        }
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
     );
   };
+
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const settingsHint = isIOS
+    ? "Настройки → Конфиденциальность → Службы геолокации → Safari / Chrome → «При использовании»"
+    : "Настройки → Приложения → Браузер → Разрешения → Местоположение → Разрешить";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -145,26 +169,63 @@ export default function ReportForm() {
             </label>
             <button
               type="button"
-              onClick={detectLocation}
-              className="w-full flex items-center gap-3 p-4 bg-neutral-50 border border-dashed border-neutral-300 hover:bg-neutral-100 transition-colors text-left mb-3"
+              onClick={gpsStatus === "denied" ? undefined : detectLocation}
+              disabled={gpsStatus === "loading"}
+              className={`w-full flex items-center gap-3 p-4 border transition-colors text-left mb-3 ${
+                gpsStatus === "denied"
+                  ? "bg-orange-50 border-orange-200 cursor-default"
+                  : gpsStatus === "found"
+                  ? "bg-green-50 border-green-200 hover:bg-green-100"
+                  : "bg-neutral-50 border-dashed border-neutral-300 hover:bg-neutral-100"
+              }`}
             >
               <Icon
-                name={gpsStatus === "loading" ? "Loader2" : gpsStatus === "found" ? "MapPinCheck" : "Navigation"}
+                name={
+                  gpsStatus === "loading" ? "Loader2" :
+                  gpsStatus === "found" ? "MapPinCheck" :
+                  gpsStatus === "denied" ? "ShieldOff" :
+                  gpsStatus === "error" ? "AlertCircle" :
+                  "Navigation"
+                }
                 size={20}
-                className={`shrink-0 ${gpsStatus === "found" ? "text-green-500" : gpsStatus === "error" ? "text-red-500" : "text-blue-500"}`}
+                className={`shrink-0 ${
+                  gpsStatus === "found" ? "text-green-500" :
+                  gpsStatus === "denied" ? "text-orange-500" :
+                  gpsStatus === "error" ? "text-red-500" :
+                  gpsStatus === "loading" ? "text-blue-500 animate-spin" :
+                  "text-blue-500"
+                }`}
               />
               <div className="flex-1">
-                {gpsStatus === "idle" && <p className="text-sm font-medium text-neutral-800">Нажмите, чтобы определить моё местоположение</p>}
+                {gpsStatus === "idle" && <p className="text-sm font-medium text-neutral-800">Определить моё местоположение</p>}
                 {gpsStatus === "loading" && <p className="text-sm font-medium text-neutral-800">Определяем координаты...</p>}
                 {gpsStatus === "found" && coords && (
-                  <p className="text-sm font-medium text-green-700">
-                    ✓ {coords.lat.toFixed(5)}, {coords.lng.toFixed(5)}
-                  </p>
+                  <p className="text-sm font-medium text-green-700">✓ {coords.lat.toFixed(5)}, {coords.lng.toFixed(5)}</p>
                 )}
-                {gpsStatus === "error" && <p className="text-sm font-medium text-red-600">Не удалось получить координаты. Проверьте разрешения.</p>}
-                <p className="text-xs text-neutral-500 mt-0.5">Нажмите повторно, чтобы обновить · или поставьте точку на карте пальцем</p>
+                {gpsStatus === "error" && <p className="text-sm font-medium text-red-600">Сигнал GPS слабый. Попробуйте ещё раз или поставьте точку на карте.</p>}
+                {gpsStatus === "denied" && <p className="text-sm font-medium text-orange-700">Доступ к геолокации заблокирован</p>}
+                {gpsStatus !== "denied" && (
+                  <p className="text-xs text-neutral-500 mt-0.5">Нажмите — браузер запросит разрешение · или поставьте точку на карте</p>
+                )}
               </div>
             </button>
+
+            {gpsStatus === "denied" && (
+              <div className="mb-3 p-4 bg-orange-50 border border-orange-200 rounded-sm">
+                <p className="text-sm font-semibold text-orange-800 mb-2">Как разрешить доступ к геолокации:</p>
+                <p className="text-xs text-orange-700 leading-relaxed mb-3">{settingsHint}</p>
+                <div className="flex gap-2 flex-wrap">
+                  <button
+                    type="button"
+                    onClick={detectLocation}
+                    className="text-xs bg-orange-600 text-white px-3 py-1.5 hover:bg-orange-700 transition-colors"
+                  >
+                    Попробовать снова
+                  </button>
+                  <p className="text-xs text-orange-600 self-center">или поставьте точку на карте вручную ↓</p>
+                </div>
+              </div>
+            )}
 
             <Suspense fallback={<div className="h-[220px] bg-neutral-100 flex items-center justify-center text-sm text-neutral-400">Загрузка карты...</div>}>
               <LocationPicker
