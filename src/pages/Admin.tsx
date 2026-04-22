@@ -25,10 +25,16 @@ const STATUS_LABELS: Record<string, { label: string; color: string }> = {
 
 const TYPE_LABELS: Record<string, string> = {
   easy: "🟢 Легко",
+  neutral: "🔵 Нейтрально",
   hard: "🟡 Сложно",
   blocked: "🔴 Непроходимо",
-  historic: "🏛️ Историческое",
-  park: "🌳 Парк",
+};
+
+const ACCESSIBILITY_ORDER: Record<string, number> = {
+  blocked: 0,
+  hard: 1,
+  neutral: 2,
+  easy: 3,
 };
 
 export default function Admin() {
@@ -94,7 +100,9 @@ export default function Admin() {
     setPassword("");
   };
 
-  const filtered = filter === "all" ? reports : reports.filter((r) => r.status === filter);
+  const filtered = (filter === "all" ? reports : reports.filter((r) => r.status === filter))
+    .slice()
+    .sort((a, b) => (ACCESSIBILITY_ORDER[a.location_type] ?? 99) - (ACCESSIBILITY_ORDER[b.location_type] ?? 99));
   const counts = {
     all: reports.length,
     new: reports.filter((r) => r.status === "new").length,
