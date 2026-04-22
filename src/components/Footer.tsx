@@ -9,53 +9,38 @@ export default function Footer() {
           <div className="bg-neutral-900 py-4 sm:py-6 lg:py-8 px-4 sm:px-6 h-full w-full flex flex-col justify-between">
             <div className="flex shrink-0 gap-8 sm:gap-12 lg:gap-20">
               <div className="flex flex-col gap-1 sm:gap-2">
-                <h3 className="mb-1 sm:mb-2 uppercase text-neutral-400 text-xs sm:text-sm">О нас</h3>
+                <h3 className="mb-1 sm:mb-2 uppercase text-neutral-400 text-xs sm:text-sm">Проект</h3>
                 <a
-                  href="#projects"
+                  href="#how"
                   className="text-white hover:text-neutral-400 transition-colors duration-300 text-sm sm:text-base"
                 >
-                  Проекты
+                  Как это работает
                 </a>
                 <a
-                  href="#mission"
+                  href="#report"
                   className="text-white hover:text-neutral-400 transition-colors duration-300 text-sm sm:text-base"
                 >
-                  Миссия
+                  Сообщить о месте
                 </a>
                 <a
-                  href="#contact"
+                  href="#map"
                   className="text-white hover:text-neutral-400 transition-colors duration-300 text-sm sm:text-base"
                 >
-                  Связаться
+                  Карта доступности
                 </a>
               </div>
               <div className="flex flex-col gap-1 sm:gap-2">
-                <h3 className="mb-1 sm:mb-2 uppercase text-neutral-400 text-xs sm:text-sm">Обучение</h3>
-                <a
-                  href="#news"
-                  className="text-white hover:text-neutral-400 transition-colors duration-300 text-sm sm:text-base"
-                >
-                  Новости
-                </a>
-                <a
-                  href="#learn"
-                  className="text-white hover:text-neutral-400 transition-colors duration-300 text-sm sm:text-base"
-                >
-                  Курсы
-                </a>
-                <a
-                  href="#publications"
-                  className="text-white hover:text-neutral-400 transition-colors duration-300 text-sm sm:text-base"
-                >
-                  Статьи
-                </a>
+                <h3 className="mb-1 sm:mb-2 uppercase text-neutral-400 text-xs sm:text-sm">Статусы точек</h3>
+                <span className="text-green-400 text-sm sm:text-base">🟢 Легко проехать</span>
+                <span className="text-yellow-400 text-sm sm:text-base">🟡 Сложно, но можно</span>
+                <span className="text-red-400 text-sm sm:text-base">🔴 Непроходимо</span>
               </div>
             </div>
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 sm:gap-0">
-              <h1 className="text-[18vw] sm:text-[16vw] lg:text-[14vw] leading-[0.8] mt-4 sm:mt-6 lg:mt-10 text-white font-bold tracking-tight">
-                LUMINO
+              <h1 className="text-[14vw] sm:text-[12vw] lg:text-[10vw] leading-[0.8] mt-4 sm:mt-6 lg:mt-10 text-white font-bold tracking-tight">
+                НДЛСВ
               </h1>
-              <p className="text-white text-sm sm:text-base">{new Date().getFullYear()} Lumino</p>
+              <p className="text-neutral-400 text-sm sm:text-base">{new Date().getFullYear()} · Карта доступности городской среды · Бета</p>
             </div>
           </div>
         </div>
