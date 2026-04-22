@@ -31,13 +31,13 @@ export default function Promo() {
       </h3>
 
       <div className="absolute bottom-12 left-6 right-6 z-10 max-w-xs sm:max-w-md md:max-w-lg lg:max-w-2xl">
-        <p className="text-white text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl leading-tight font-light mb-6">
-          Каждая точка на карте — шаг к умному навигатору
+        <p className="text-white text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl leading-tight font-light mb-4">
+          Собираем данные сегодня — чтобы завтра построить навигатор для людей с инвалидностью в Анапе и по всей России.
         </p>
-        <p className="text-white/70 text-sm sm:text-base md:text-lg leading-relaxed max-w-xl">
-          Собранные данные лягут в основу первого в России навигатора для людей с ограниченными возможностями. Он будет прокладывать маршруты только по доступным улицам — в обход лестниц, крутых пандусов и разбитых тротуаров. Чем больше мест отмечено, тем точнее маршрут.
+        <p className="text-white/60 text-sm sm:text-base leading-relaxed max-w-xl mb-6">
+          Каждая отмеченная точка ляжет в основу первого в России навигатора, который прокладывает маршруты только по доступным улицам — в обход лестниц, крутых пандусов и разбитых тротуаров. Чем больше мест отмечено, тем точнее маршрут.
         </p>
-        <div className="mt-6 flex items-center gap-3 text-white/40 text-xs uppercase tracking-widest">
+        <div className="flex items-center gap-3 text-white/40 text-xs uppercase tracking-widest">
           <span className="w-8 h-px bg-white/40" />
           Это возможно только вместе
         </div>
