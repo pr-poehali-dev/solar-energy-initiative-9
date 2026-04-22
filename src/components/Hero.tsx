@@ -1,7 +1,34 @@
 import { useScroll, useTransform, motion } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useEffect, useState } from "react";
+import func2url from "../../backend/func2url.json";
 
 export default function Hero() {
+  const [count, setCount] = useState<number | null>(null);
+  const [displayed, setDisplayed] = useState(0);
+
+  useEffect(() => {
+    fetch(func2url["get-reports"])
+      .then((r) => r.json())
+      .then((data) => {
+        const parsed = typeof data === "string" ? JSON.parse(data) : data;
+        setCount(parsed.total ?? 0);
+      })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    if (count === null) return;
+    if (count === 0) { setDisplayed(0); return; }
+    const step = Math.ceil(count / 40);
+    let cur = 0;
+    const timer = setInterval(() => {
+      cur = Math.min(cur + step, count);
+      setDisplayed(cur);
+      if (cur >= count) clearInterval(timer);
+    }, 30);
+    return () => clearInterval(timer);
+  }, [count]);
+
   const container = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: container,
@@ -36,12 +63,23 @@ export default function Hero() {
         <p className="text-lg md:text-xl max-w-2xl mx-auto opacity-90 mb-10">
           Вместе создаём базу данных проходимых маршрутов для людей с инвалидностью. Отметь место рядом — помоги другим.
         </p>
-        <a
-          href="#report"
-          className="inline-block bg-white text-black text-sm uppercase tracking-widest px-8 py-4 font-semibold hover:bg-neutral-200 transition-colors duration-300"
-        >
-          Отметить место
-        </a>
+        {count !== null && (
+          <div className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-sm border border-white/20 px-6 py-3 mb-8 rounded-sm">
+            <span className="text-3xl font-bold tabular-nums">{displayed}</span>
+            <span className="text-sm opacity-80 text-left leading-tight">
+              мест уже<br/>отмечено
+            </span>
+          </div>
+        )}
+
+        <div>
+          <a
+            href="#report"
+            className="inline-block bg-white text-black text-sm uppercase tracking-widest px-8 py-4 font-semibold hover:bg-neutral-200 transition-colors duration-300"
+          >
+            Отметить место
+          </a>
+        </div>
       </div>
     </div>
   );
