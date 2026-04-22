@@ -40,6 +40,13 @@ export default function Header({ className }: HeaderProps) {
             </a>
           ))}
           <Link
+            to="/stories"
+            className="text-white hover:text-neutral-300 transition-colors duration-300 uppercase text-sm flex items-center gap-1.5"
+          >
+            <Icon name="Video" size={14} />
+            Вся правда
+          </Link>
+          <Link
             to="/documents"
             className="text-white hover:text-neutral-300 transition-colors duration-300 uppercase text-sm flex items-center gap-1.5"
           >
@@ -80,6 +87,14 @@ export default function Header({ className }: HeaderProps) {
               {l.label}
             </a>
           ))}
+          <Link
+            to="/stories"
+            onClick={close}
+            className="flex items-center gap-2 px-6 py-4 text-white uppercase text-sm tracking-wide hover:bg-white/10 transition-colors border-b border-white/10"
+          >
+            <Icon name="Video" size={14} />
+            Вся правда
+          </Link>
           <Link
             to="/documents"
             onClick={close}

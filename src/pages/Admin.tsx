@@ -2,6 +2,15 @@ import { useState, useEffect, useCallback } from "react";
 import Icon from "@/components/ui/icon";
 import func2url from "../../backend/func2url.json";
 
+interface VideoItem {
+  id: number;
+  title: string;
+  description: string;
+  video_url: string;
+  published: boolean;
+  created_at: string;
+}
+
 interface Report {
   id: number;
   latitude: number;
@@ -48,6 +57,13 @@ export default function Admin() {
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const [rejectReason, setRejectReason] = useState("");
   const [rejectTarget, setRejectTarget] = useState<number | null>(null);
+
+  // Videos
+  const [videos, setVideos] = useState<VideoItem[]>([]);
+  const [videoTab, setVideoTab] = useState(false);
+  const [videoForm, setVideoForm] = useState({ id: 0, title: "", description: "", video_url: "", published: true });
+  const [videoSaving, setVideoSaving] = useState(false);
+  const [editingVideoId, setEditingVideoId] = useState<number | null>(null);
 
   const fetchReports = useCallback(async (tok: string) => {
     setLoading(true);
@@ -98,6 +114,46 @@ export default function Admin() {
     sessionStorage.removeItem("admin_token");
     setToken("");
     setPassword("");
+  };
+
+  const fetchVideos = useCallback(async () => {
+    const res = await fetch(`${func2url["videos"]}?admin=1`);
+    const raw = await res.json();
+    const data = typeof raw === "string" ? JSON.parse(raw) : raw;
+    setVideos(data.videos || []);
+  }, []);
+
+  useEffect(() => {
+    if (token) fetchVideos();
+  }, [token, fetchVideos]);
+
+  const saveVideo = async () => {
+    setVideoSaving(true);
+    await fetch(func2url["videos"], {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Admin-Token": token },
+      body: JSON.stringify(videoForm),
+    });
+    await fetchVideos();
+    setVideoForm({ id: 0, title: "", description: "", video_url: "", published: true });
+    setEditingVideoId(null);
+    setVideoSaving(false);
+  };
+
+  const deleteVideo = async (id: number) => {
+    if (!confirm("Удалить это видео?")) return;
+    await fetch(func2url["videos"], {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json", "X-Admin-Token": token },
+      body: JSON.stringify({ id }),
+    });
+    await fetchVideos();
+  };
+
+  const startEdit = (v: VideoItem) => {
+    setVideoForm({ id: v.id, title: v.title, description: v.description, video_url: v.video_url, published: v.published });
+    setEditingVideoId(v.id);
+    setVideoTab(true);
   };
 
   const filtered = (filter === "all" ? reports : reports.filter((r) => r.status === filter))
@@ -169,6 +225,135 @@ export default function Admin() {
       </div>
 
       <div className="max-w-5xl mx-auto px-6 py-10">
+
+        {/* Tab switcher */}
+        <div className="flex gap-2 mb-8">
+          <button
+            onClick={() => setVideoTab(false)}
+            className={`px-4 py-2 text-sm font-medium transition-colors ${!videoTab ? "bg-neutral-900 text-white" : "bg-white border border-neutral-200 text-neutral-600 hover:border-neutral-400"}`}
+          >
+            <Icon name="ClipboardList" size={14} className="inline mr-1.5" />
+            Заявки
+          </button>
+          <button
+            onClick={() => setVideoTab(true)}
+            className={`px-4 py-2 text-sm font-medium transition-colors ${videoTab ? "bg-neutral-900 text-white" : "bg-white border border-neutral-200 text-neutral-600 hover:border-neutral-400"}`}
+          >
+            <Icon name="Video" size={14} className="inline mr-1.5" />
+            Вся правда · {videos.length}
+          </button>
+        </div>
+
+        {/* Videos tab */}
+        {videoTab && (
+          <div className="space-y-6">
+            {/* Form */}
+            <div className="bg-white border border-neutral-200 p-6">
+              <h2 className="font-semibold text-neutral-900 text-sm uppercase tracking-wide mb-5">
+                {editingVideoId ? "Редактировать видео" : "Добавить видео"}
+              </h2>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs uppercase tracking-widest text-neutral-500 mb-1.5">Заголовок *</label>
+                  <input
+                    type="text"
+                    value={videoForm.title}
+                    onChange={(e) => setVideoForm((f) => ({ ...f, title: e.target.value }))}
+                    placeholder="Интервью с Александром, инвалид-колясочник"
+                    className="w-full border border-neutral-200 p-3 text-sm focus:outline-none focus:border-neutral-400"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs uppercase tracking-widest text-neutral-500 mb-1.5">Ссылка на видео * <span className="normal-case font-normal text-neutral-400">(YouTube, VK, Rutube)</span></label>
+                  <input
+                    type="text"
+                    value={videoForm.video_url}
+                    onChange={(e) => setVideoForm((f) => ({ ...f, video_url: e.target.value }))}
+                    placeholder="https://youtu.be/..."
+                    className="w-full border border-neutral-200 p-3 text-sm focus:outline-none focus:border-neutral-400"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs uppercase tracking-widest text-neutral-500 mb-1.5">Описание</label>
+                  <textarea
+                    rows={3}
+                    value={videoForm.description}
+                    onChange={(e) => setVideoForm((f) => ({ ...f, description: e.target.value }))}
+                    placeholder="Краткое описание видео..."
+                    className="w-full border border-neutral-200 p-3 text-sm focus:outline-none focus:border-neutral-400 resize-none"
+                  />
+                </div>
+                <div className="flex items-center gap-3">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={videoForm.published}
+                      onChange={(e) => setVideoForm((f) => ({ ...f, published: e.target.checked }))}
+                      className="accent-black w-4 h-4"
+                    />
+                    <span className="text-sm text-neutral-700">Опубликовать сразу</span>
+                  </label>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={saveVideo}
+                    disabled={videoSaving || !videoForm.title || !videoForm.video_url}
+                    className="flex items-center gap-2 bg-black text-white px-4 py-2 text-sm hover:bg-neutral-800 transition-colors disabled:opacity-40"
+                  >
+                    {videoSaving ? <Icon name="Loader2" size={14} className="animate-spin" /> : <Icon name="Save" size={14} />}
+                    {editingVideoId ? "Сохранить" : "Добавить"}
+                  </button>
+                  {editingVideoId && (
+                    <button
+                      onClick={() => { setEditingVideoId(null); setVideoForm({ id: 0, title: "", description: "", video_url: "", published: true }); }}
+                      className="px-4 py-2 text-sm border border-neutral-200 hover:bg-neutral-50 transition-colors"
+                    >
+                      Отмена
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* List */}
+            {videos.length === 0 ? (
+              <div className="text-center py-16 text-neutral-400 bg-white border border-neutral-200">
+                <Icon name="Video" size={32} className="mx-auto mb-3 opacity-40" />
+                <p className="text-sm">Видео ещё не добавлены</p>
+              </div>
+            ) : (
+              <div className="bg-white border border-neutral-200 divide-y divide-neutral-100">
+                {videos.map((v) => (
+                  <div key={v.id} className="px-6 py-4 flex items-start gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${v.published ? "bg-green-100 text-green-800" : "bg-neutral-100 text-neutral-600"}`}>
+                          {v.published ? "Опубликовано" : "Скрыто"}
+                        </span>
+                        <span className="text-xs text-neutral-400">#{v.id}</span>
+                      </div>
+                      <p className="text-sm font-semibold text-neutral-900 mb-0.5">{v.title}</p>
+                      {v.description && <p className="text-xs text-neutral-500 line-clamp-1">{v.description}</p>}
+                      <p className="text-xs text-neutral-400 mt-1 truncate">{v.video_url}</p>
+                    </div>
+                    <div className="flex gap-2 shrink-0">
+                      <button onClick={() => startEdit(v)} className="text-xs text-neutral-500 hover:text-neutral-900 transition-colors flex items-center gap-1">
+                        <Icon name="Pencil" size={12} /> Изменить
+                      </button>
+                      <button onClick={() => deleteVideo(v.id)} className="text-xs text-red-400 hover:text-red-600 transition-colors flex items-center gap-1">
+                        <Icon name="Trash2" size={12} /> Удалить
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Reports tab */}
+        {!videoTab && (
+        <>
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           {(["all", "new", "approved", "rejected"] as const).map((key) => (
@@ -350,6 +535,9 @@ export default function Admin() {
             </div>
           ))}
         </div>
+      </>
+      )}
+
       </div>
     </div>
   );

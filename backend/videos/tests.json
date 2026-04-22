@@ -1,0 +1,21 @@
+{
+  "tests": [
+    {
+      "name": "Get videos",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200,
+      "bodyMatcher": "partial",
+      "expectedBody": {"videos": []}
+    },
+    {
+      "name": "Reject unauthorized POST",
+      "method": "POST",
+      "path": "/",
+      "body": {"title": "Test", "video_url": "https://example.com"},
+      "expectedStatus": 403,
+      "bodyMatcher": "partial",
+      "expectedBody": {"error": "Forbidden"}
+    }
+  ]
+}
