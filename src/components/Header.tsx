@@ -18,29 +18,30 @@ export default function Header({ className }: HeaderProps) {
 
   return (
     <header className={`absolute top-0 left-0 right-0 z-20 p-6 ${className ?? ""}`}>
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
 
         {/* Лого */}
-        <div className="text-white text-sm uppercase tracking-widest font-bold">НДЛСВ</div>
+        <div className="text-white text-sm uppercase tracking-widest font-bold w-20">НДЛСВ</div>
 
-        {/* Центр — SOS кнопка */}
+        {/* Центр — SOS кнопка строго по центру */}
         <a
           href="tel:112"
-          className="flex items-center gap-2 bg-red-600 hover:bg-red-700 transition-colors text-white text-xs font-bold uppercase tracking-wide px-4 py-2 rounded-sm"
+          className="flex items-center gap-2 bg-red-600 hover:bg-red-700 transition-colors text-white text-xs font-bold uppercase tracking-wide px-4 py-2.5 rounded-sm"
         >
           <Icon name="Phone" size={13} />
-          <span className="hidden sm:inline">Помогите! Я застрял</span>
-          <span className="sm:hidden">112</span>
+          Помогите! Я застрял
         </a>
 
         {/* Бургер */}
-        <button
-          onClick={() => setOpen((v) => !v)}
-          className="text-white p-1"
-          aria-label={open ? "Закрыть меню" : "Открыть меню"}
-        >
-          <Icon name={open ? "X" : "Menu"} size={24} />
-        </button>
+        <div className="w-20 flex justify-end">
+          <button
+            onClick={() => setOpen((v) => !v)}
+            className="text-white p-1"
+            aria-label={open ? "Закрыть меню" : "Открыть меню"}
+          >
+            <Icon name={open ? "X" : "Menu"} size={24} />
+          </button>
+        </div>
       </div>
 
       {/* Dropdown меню */}
