@@ -1,4 +1,4 @@
-import { useState, lazy, Suspense } from "react";
+import { useState, lazy, Suspense, useRef } from "react";
 import Icon from "@/components/ui/icon";
 import func2url from "../../backend/func2url.json";
 
@@ -29,6 +29,16 @@ export default function ReportForm() {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [photo, setPhoto] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setPhoto(file);
+    setPhotoPreview(URL.createObjectURL(file));
+  };
 
   const toggleFeature = (f: string) => {
     setSelectedFeatures((prev) =>
@@ -88,6 +98,9 @@ export default function ReportForm() {
     setSelectedFeatures([]);
     setComment("");
     setSubmitterName("");
+    setPhoto(null);
+    setPhotoPreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   if (submitted) {
@@ -184,13 +197,42 @@ export default function ReportForm() {
             <label className="block text-sm font-semibold uppercase tracking-wide text-neutral-700 mb-3">
               Фото препятствия или маршрута *
             </label>
-            <div className="flex items-center justify-center gap-3 p-8 bg-neutral-50 border border-dashed border-neutral-300 cursor-pointer hover:bg-neutral-100 transition-colors">
-              <Icon name="Camera" size={24} className="text-neutral-400" />
-              <div>
-                <p className="text-sm font-medium text-neutral-800">Сделать фото</p>
-                <p className="text-xs text-neutral-500 mt-0.5">На снимке будут отпечатаны координаты и время</p>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              onChange={handlePhotoChange}
+              className="hidden"
+              id="photo-input"
+              required
+            />
+            {photoPreview ? (
+              <div className="relative">
+                <img src={photoPreview} alt="Превью" className="w-full max-h-64 object-cover" />
+                <button
+                  type="button"
+                  onClick={() => { setPhoto(null); setPhotoPreview(null); if (fileInputRef.current) fileInputRef.current.value = ""; }}
+                  className="absolute top-2 right-2 bg-black/60 text-white rounded-full p-1 hover:bg-black transition-colors"
+                >
+                  <Icon name="X" size={14} />
+                </button>
+                <p className="text-xs text-green-600 mt-2 flex items-center gap-1">
+                  <Icon name="CheckCircle" size={12} /> {photo?.name}
+                </p>
               </div>
-            </div>
+            ) : (
+              <label
+                htmlFor="photo-input"
+                className="flex items-center justify-center gap-3 p-8 bg-neutral-50 border border-dashed border-neutral-300 cursor-pointer hover:bg-neutral-100 transition-colors"
+              >
+                <Icon name="Camera" size={24} className="text-neutral-400" />
+                <div>
+                  <p className="text-sm font-medium text-neutral-800">Сделать фото или выбрать из галереи</p>
+                  <p className="text-xs text-neutral-500 mt-0.5">На снимке будут видны координаты и время</p>
+                </div>
+              </label>
+            )}
           </div>
 
           {/* Location type */}
