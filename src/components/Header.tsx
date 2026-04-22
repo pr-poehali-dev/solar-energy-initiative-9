@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import Icon from "@/components/ui/icon";
 
 interface HeaderProps {
@@ -38,6 +39,13 @@ export default function Header({ className }: HeaderProps) {
               {l.label}
             </a>
           ))}
+          <Link
+            to="/documents"
+            className="text-white hover:text-neutral-300 transition-colors duration-300 uppercase text-sm flex items-center gap-1.5"
+          >
+            <Icon name="FileText" size={14} />
+            Заявления
+          </Link>
         </nav>
 
         {/* Mobile: SOS + burger */}
@@ -67,11 +75,19 @@ export default function Header({ className }: HeaderProps) {
               key={l.href}
               href={l.href}
               onClick={close}
-              className="block px-6 py-4 text-white uppercase text-sm tracking-wide hover:bg-white/10 transition-colors border-b border-white/10 last:border-0"
+              className="block px-6 py-4 text-white uppercase text-sm tracking-wide hover:bg-white/10 transition-colors border-b border-white/10"
             >
               {l.label}
             </a>
           ))}
+          <Link
+            to="/documents"
+            onClick={close}
+            className="flex items-center gap-2 px-6 py-4 text-white uppercase text-sm tracking-wide hover:bg-white/10 transition-colors"
+          >
+            <Icon name="FileText" size={14} />
+            Заявления
+          </Link>
         </div>
       )}
     </header>
