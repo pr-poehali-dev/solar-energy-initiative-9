@@ -47,6 +47,7 @@ def handler(event: dict, context) -> dict:
     submitter_name = body.get("submitter_name", "")
     submitter_contact = body.get("submitter_contact", "")
     city = body.get("city", "Анапа")
+    place_type = body.get("place_type", "")
 
     conn = psycopg2.connect(os.environ["DATABASE_URL"])
     try:
@@ -54,9 +55,9 @@ def handler(event: dict, context) -> dict:
         cur.execute(
             f"""
             INSERT INTO {SCHEMA}.reports
-                (latitude, longitude, city, location_type, features, comment,
+                (latitude, longitude, city, location_type, place_type, features, comment,
                  photo_url, photo_metadata, submitter_name, submitter_contact)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             RETURNING id, created_at
             """,
             (
@@ -64,6 +65,7 @@ def handler(event: dict, context) -> dict:
                 longitude,
                 city,
                 location_type,
+                place_type,
                 features,
                 comment,
                 photo_url,

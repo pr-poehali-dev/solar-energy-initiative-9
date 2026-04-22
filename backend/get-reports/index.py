@@ -1,6 +1,6 @@
 """
 Возвращает список подтверждённых точек для публичной карты.
-Поддерживает фильтрацию по городу и типу локации.
+Поддерживает фильтрацию по городу, типу локации и проблемным местам (problems=1).
 Для админа (с параметром admin=1) возвращает все заявки включая новые.
 """
 import json
@@ -44,12 +44,18 @@ def handler(event: dict, context) -> dict:
             conditions.append("location_type = %s")
             values.append(location_type)
 
+        if params.get("problems") == "1":
+            conditions.append("is_problem = true")
+
+        where_clause = ("WHERE " + " AND ".join(conditions)) if conditions else ""
+
         where_clause = ("WHERE " + " AND ".join(conditions)) if conditions else ""
 
         cur.execute(
             f"""
             SELECT id, latitude, longitude, city, location_type, features,
-                   comment, photo_url, status, submitter_name, created_at, reviewed_at
+                   comment, photo_url, status, submitter_name, created_at, reviewed_at,
+                   is_problem, place_type
             FROM {SCHEMA}.reports
             {where_clause}
             ORDER BY created_at DESC
@@ -77,6 +83,8 @@ def handler(event: dict, context) -> dict:
             "submitter_name": r[9],
             "created_at": r[10].isoformat() if r[10] else None,
             "reviewed_at": r[11].isoformat() if r[11] else None,
+            "is_problem": r[12],
+            "place_type": r[13],
         })
 
     return {

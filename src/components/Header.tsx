@@ -66,6 +66,14 @@ export default function Header({ className }: HeaderProps) {
             Вся правда
           </Link>
           <Link
+            to="/problems"
+            onClick={close}
+            className="flex items-center gap-2 px-6 py-4 text-white uppercase text-sm tracking-wide hover:bg-white/10 transition-colors border-b border-white/10"
+          >
+            <Icon name="AlertTriangle" size={14} />
+            Проблемные места
+          </Link>
+          <Link
             to="/documents"
             onClick={close}
             className="flex items-center gap-2 px-6 py-4 text-white uppercase text-sm tracking-wide hover:bg-white/10 transition-colors"

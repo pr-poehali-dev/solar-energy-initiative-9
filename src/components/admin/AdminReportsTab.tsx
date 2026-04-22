@@ -13,6 +13,8 @@ export interface Report {
   submitter_name: string;
   created_at: string;
   reviewed_at: string | null;
+  is_problem: boolean;
+  place_type: string;
 }
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
@@ -45,6 +47,7 @@ interface AdminReportsTabProps {
   onRejectCancel: () => void;
   onRejectReasonChange: (v: string) => void;
   onToggleExpand: (id: number) => void;
+  onToggleProblem: (id: number, value: boolean) => void;
 }
 
 export default function AdminReportsTab({
@@ -64,6 +67,7 @@ export default function AdminReportsTab({
   onRejectCancel,
   onRejectReasonChange,
   onToggleExpand,
+  onToggleProblem,
 }: AdminReportsTabProps) {
   return (
     <>
@@ -170,6 +174,15 @@ export default function AdminReportsTab({
 
               {/* Actions */}
               <div className="flex flex-col gap-2 shrink-0">
+                <label className={`flex items-center gap-1.5 cursor-pointer px-2 py-1 border text-xs font-medium transition-colors ${r.is_problem ? "bg-red-50 border-red-300 text-red-700" : "border-neutral-200 text-neutral-500 hover:border-neutral-400"}`}>
+                  <input
+                    type="checkbox"
+                    checked={r.is_problem}
+                    onChange={(e) => onToggleProblem(r.id, e.target.checked)}
+                    className="accent-red-600 w-3 h-3"
+                  />
+                  В список проблем
+                </label>
                 <button
                   onClick={() => onToggleExpand(r.id)}
                   className="text-xs text-neutral-500 hover:text-neutral-900 transition-colors flex items-center gap-1"

@@ -33,6 +33,7 @@ def handler(event: dict, context) -> dict:
     report_id = body.get("id")
     new_status = body.get("status")
     reject_reason = body.get("reject_reason", "")
+    is_problem = body.get("is_problem")
 
     if not report_id or new_status not in ("approved", "rejected", "new"):
         return {
@@ -44,6 +45,19 @@ def handler(event: dict, context) -> dict:
     conn = psycopg2.connect(os.environ["DATABASE_URL"])
     try:
         cur = conn.cursor()
+
+        if is_problem is not None:
+            cur.execute(
+                f"UPDATE {SCHEMA}.reports SET is_problem = %s WHERE id = %s",
+                (bool(is_problem), report_id),
+            )
+            conn.commit()
+            return {
+                "statusCode": 200,
+                "headers": CORS_HEADERS,
+                "body": json.dumps({"success": True, "id": report_id}),
+            }
+
         cur.execute(
             f"""
             UPDATE {SCHEMA}.reports

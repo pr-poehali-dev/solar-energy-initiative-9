@@ -116,6 +116,15 @@ export default function Admin() {
     await fetchVideos();
   };
 
+  const toggleProblem = async (id: number, value: boolean) => {
+    await fetch(func2url["moderate-report"], {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Admin-Token": token },
+      body: JSON.stringify({ id, status: "new", is_problem: value }),
+    });
+    await fetchReports(token);
+  };
+
   const startEdit = (v: VideoItem) => {
     setVideoForm({ id: v.id, title: v.title, description: v.description, video_url: v.video_url, published: v.published });
     setEditingVideoId(v.id);
@@ -214,6 +223,7 @@ export default function Admin() {
             onRejectCancel={() => { setRejectTarget(null); setRejectReason(""); }}
             onRejectReasonChange={setRejectReason}
             onToggleExpand={(id) => setExpandedId(expandedId === id ? null : id)}
+            onToggleProblem={toggleProblem}
           />
         )}
 
