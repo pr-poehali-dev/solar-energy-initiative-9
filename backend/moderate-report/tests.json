@@ -1,0 +1,13 @@
+{
+  "tests": [
+    {
+      "name": "Reject without token",
+      "method": "POST",
+      "path": "/",
+      "body": {"id": 1, "status": "approved"},
+      "expectedStatus": 403,
+      "expectedBody": {"error": "Доступ запрещён"},
+      "bodyMatcher": "partial"
+    }
+  ]
+}
