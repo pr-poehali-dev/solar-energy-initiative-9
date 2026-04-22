@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
+import { useEffect, useRef, useState } from "react";
+import L from "leaflet";
 import Icon from "@/components/ui/icon";
 import func2url from "../../backend/func2url.json";
 
@@ -42,6 +42,8 @@ const legend = [
 ];
 
 export default function MapPreview() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<L.Map | null>(null);
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -55,6 +57,56 @@ export default function MapPreview() {
       .catch(() => setReports([]))
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    if (loading || !containerRef.current || mapRef.current) return;
+
+    const map = L.map(containerRef.current, {
+      center: [44.895, 37.316],
+      zoom: 14,
+      scrollWheelZoom: true,
+    });
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    }).addTo(map);
+
+    reports.forEach((r) => {
+      const color = colorMap[r.location_type] || "#999";
+      const label = labelMap[r.location_type] || r.location_type;
+
+      const circle = L.circleMarker([r.latitude, r.longitude], {
+        radius: 10,
+        color: "#fff",
+        weight: 2,
+        fillColor: color,
+        fillOpacity: 0.9,
+      }).addTo(map);
+
+      const featuresHtml = r.features?.length
+        ? `<div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px">${r.features.map(
+            (f) => `<span style="font-size:11px;background:#f3f4f6;padding:2px 6px;border-radius:4px">${f}</span>`
+          ).join("")}</div>`
+        : "";
+
+      circle.bindPopup(`
+        <div style="min-width:180px;font-family:sans-serif">
+          <p style="font-weight:600;margin:0 0 4px">${label}</p>
+          ${r.submitter_name ? `<p style="color:#6b7280;font-size:12px;margin:0 0 4px">от ${r.submitter_name}</p>` : ""}
+          ${r.comment ? `<p style="font-size:12px;margin:0 0 6px;color:#374151">${r.comment}</p>` : ""}
+          ${featuresHtml}
+          <p style="color:#9ca3af;font-size:11px;margin:6px 0 0">${new Date(r.created_at).toLocaleDateString("ru-RU")}</p>
+        </div>
+      `);
+    });
+
+    mapRef.current = map;
+
+    return () => {
+      map.remove();
+      mapRef.current = null;
+    };
+  }, [loading, reports]);
 
   return (
     <div id="map" className="min-h-screen bg-white px-6 py-24">
@@ -73,68 +125,15 @@ export default function MapPreview() {
           </p>
         </div>
 
-        {/* Map */}
         <div className="relative w-full h-[520px] border border-neutral-200 overflow-hidden">
           {loading && (
             <div className="absolute inset-0 flex items-center justify-center bg-neutral-100 z-10">
               <Icon name="Loader2" size={32} className="animate-spin text-neutral-400" />
             </div>
           )}
-
-          {!loading && (
-            <MapContainer
-              center={[44.895, 37.316]}
-              zoom={14}
-              style={{ height: "100%", width: "100%" }}
-              scrollWheelZoom={true}
-            >
-              <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              />
-
-              {reports.map((r) => (
-                <CircleMarker
-                  key={r.id}
-                  center={[r.latitude, r.longitude]}
-                  radius={10}
-                  pathOptions={{
-                    color: "#fff",
-                    weight: 2,
-                    fillColor: colorMap[r.location_type] || "#999",
-                    fillOpacity: 0.9,
-                  }}
-                >
-                  <Popup>
-                    <div className="text-sm min-w-[180px]">
-                      <p className="font-semibold mb-1">{labelMap[r.location_type] || r.location_type}</p>
-                      {r.submitter_name && (
-                        <p className="text-neutral-500 text-xs mb-1">от {r.submitter_name}</p>
-                      )}
-                      {r.comment && (
-                        <p className="text-neutral-700 text-xs mb-2">{r.comment}</p>
-                      )}
-                      {r.features?.length > 0 && (
-                        <div className="flex flex-wrap gap-1">
-                          {r.features.map((f) => (
-                            <span key={f} className="text-xs bg-neutral-100 text-neutral-600 px-1.5 py-0.5 rounded">
-                              {f}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                      <p className="text-neutral-400 text-xs mt-2">
-                        {new Date(r.created_at).toLocaleDateString("ru-RU")}
-                      </p>
-                    </div>
-                  </Popup>
-                </CircleMarker>
-              ))}
-            </MapContainer>
-          )}
+          <div ref={containerRef} style={{ height: "100%", width: "100%" }} />
         </div>
 
-        {/* Legend */}
         <div className="flex flex-wrap gap-6 mt-6">
           {legend.map((l) => (
             <div key={l.label} className="flex items-center gap-2">
