@@ -2,6 +2,7 @@ import Icon from "@/components/ui/icon";
 
 const accessibilityTypes = [
   { value: "easy", label: "🟢 Легко", description: "Ровный асфальт, пологий пандус" },
+  { value: "neutral", label: "🔵 Нейтрально", description: "Проехать можно, но есть небольшие неудобства" },
   { value: "hard", label: "🟡 Сложно", description: "Щебень, бордюры, уклон" },
   { value: "blocked", label: "🔴 Непроходимо", description: "Лестница, глубокие ямы, нет пандуса" },
 ];

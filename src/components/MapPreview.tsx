@@ -20,12 +20,14 @@ interface Report {
 
 const accessibilityColorMap: Record<string, string> = {
   easy: "#22c55e",
+  neutral: "#3b82f6",
   hard: "#eab308",
   blocked: "#ef4444",
 };
 
 const accessibilityLabelMap: Record<string, string> = {
   easy: "🟢 Легко",
+  neutral: "🔵 Нейтрально",
   hard: "🟡 Сложно",
   blocked: "🔴 Непроходимо",
 };
@@ -40,6 +42,7 @@ const placeTypeLabelMap: Record<string, string> = {
 
 const legend = [
   { color: "#22c55e", label: "Легко" },
+  { color: "#3b82f6", label: "Нейтрально" },
   { color: "#eab308", label: "Сложно" },
   { color: "#ef4444", label: "Непроходимо" },
 ];
