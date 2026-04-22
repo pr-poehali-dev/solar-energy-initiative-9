@@ -41,11 +41,24 @@ const legend = [
   { color: "#16a34a", label: "Парк" },
 ];
 
+const TILES = {
+  satellite: {
+    url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+    attribution: "Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics",
+  },
+  map: {
+    url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+  },
+};
+
 export default function MapPreview() {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
+  const tileRef = useRef<L.TileLayer | null>(null);
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
+  const [mode, setMode] = useState<"satellite" | "map">("satellite");
 
   useEffect(() => {
     fetch(func2url["get-reports"])
@@ -67,9 +80,12 @@ export default function MapPreview() {
       scrollWheelZoom: true,
     });
 
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    const tile = L.tileLayer(TILES.satellite.url, {
+      attribution: TILES.satellite.attribution,
+      maxZoom: 19,
     }).addTo(map);
+
+    tileRef.current = tile;
 
     reports.forEach((r) => {
       const color = colorMap[r.location_type] || "#999";
@@ -89,8 +105,13 @@ export default function MapPreview() {
           ).join("")}</div>`
         : "";
 
+      const photoHtml = r.photo_url
+        ? `<a href="${r.photo_url}" target="_blank" rel="noreferrer"><img src="${r.photo_url}" style="width:100%;max-height:120px;object-fit:cover;margin-bottom:6px;border-radius:4px" /></a>`
+        : "";
+
       circle.bindPopup(`
-        <div style="min-width:180px;font-family:sans-serif">
+        <div style="min-width:200px;font-family:sans-serif">
+          ${photoHtml}
           <p style="font-weight:600;margin:0 0 4px">${label}</p>
           ${r.submitter_name ? `<p style="color:#6b7280;font-size:12px;margin:0 0 4px">от ${r.submitter_name}</p>` : ""}
           ${r.comment ? `<p style="font-size:12px;margin:0 0 6px;color:#374151">${r.comment}</p>` : ""}
@@ -105,8 +126,14 @@ export default function MapPreview() {
     return () => {
       map.remove();
       mapRef.current = null;
+      tileRef.current = null;
     };
   }, [loading, reports]);
+
+  useEffect(() => {
+    if (!tileRef.current) return;
+    tileRef.current.setUrl(TILES[mode].url);
+  }, [mode]);
 
   return (
     <div id="map" className="min-h-screen bg-white px-6 py-24">
@@ -132,6 +159,30 @@ export default function MapPreview() {
             </div>
           )}
           <div ref={containerRef} style={{ height: "100%", width: "100%" }} />
+          <div className="absolute bottom-4 left-4 z-[1000] flex rounded overflow-hidden shadow">
+            <button
+              type="button"
+              onClick={() => setMode("satellite")}
+              className={`px-3 py-1.5 text-xs font-medium transition-colors ${
+                mode === "satellite"
+                  ? "bg-black text-white"
+                  : "bg-white text-neutral-700 hover:bg-neutral-100"
+              }`}
+            >
+              Спутник
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode("map")}
+              className={`px-3 py-1.5 text-xs font-medium transition-colors ${
+                mode === "map"
+                  ? "bg-black text-white"
+                  : "bg-white text-neutral-700 hover:bg-neutral-100"
+              }`}
+            >
+              Схема
+            </button>
+          </div>
         </div>
 
         <div className="flex flex-wrap gap-6 mt-6">
