@@ -1,12 +1,17 @@
-import { useRef } from "react";
 import Icon from "@/components/ui/icon";
 
-const locationTypes = [
-  { value: "easy", label: "🟢 Легко. Ровный асфальт, пологий пандус" },
-  { value: "hard", label: "🟡 Сложно. Щебень, бордюры, уклон" },
-  { value: "blocked", label: "🔴 Непроходимо. Лестница, глубокие ямы, нет пандуса" },
-  { value: "historic", label: "🏛️ Историческое/Туристическое место (добраться можно)" },
-  { value: "park", label: "🌳 Парк или зона отдыха" },
+const accessibilityTypes = [
+  { value: "easy", label: "🟢 Легко", description: "Ровный асфальт, пологий пандус" },
+  { value: "hard", label: "🟡 Сложно", description: "Щебень, бордюры, уклон" },
+  { value: "blocked", label: "🔴 Непроходимо", description: "Лестница, глубокие ямы, нет пандуса" },
+];
+
+const placeTypes = [
+  { value: "regular", label: "🏘️ Обычное место", description: "Улица, двор, магазин, остановка" },
+  { value: "historic", label: "🏛️ Историческое / туристическое", description: "Достопримечательность, музей, памятник" },
+  { value: "park", label: "🌳 Парк или зона отдыха", description: "Сквер, набережная, пляж" },
+  { value: "medical", label: "🏥 Медицинское учреждение", description: "Больница, поликлиника, аптека" },
+  { value: "transport", label: "🚌 Транспортный узел", description: "Остановка, вокзал, автостанция" },
 ];
 
 const featuresList = [
@@ -24,8 +29,10 @@ interface ReportDetailsFieldsProps {
   onPhotoChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onPhotoClear: () => void;
   fileInputRef: React.RefObject<HTMLInputElement>;
-  locationType: string;
-  onLocationTypeChange: (v: string) => void;
+  accessibility: string;
+  onAccessibilityChange: (v: string) => void;
+  placeType: string;
+  onPlaceTypeChange: (v: string) => void;
   selectedFeatures: string[];
   onToggleFeature: (f: string) => void;
   comment: string;
@@ -40,8 +47,10 @@ export default function ReportDetailsFields({
   onPhotoChange,
   onPhotoClear,
   fileInputRef,
-  locationType,
-  onLocationTypeChange,
+  accessibility,
+  onAccessibilityChange,
+  placeType,
+  onPlaceTypeChange,
   selectedFeatures,
   onToggleFeature,
   comment,
@@ -107,31 +116,69 @@ export default function ReportDetailsFields({
         )}
       </div>
 
-      {/* Location type */}
+      {/* Accessibility */}
       <div className="bg-white border border-neutral-200 p-6">
-        <label className="block text-sm font-semibold uppercase tracking-wide text-neutral-700 mb-3">
-          Тип локации *
+        <label className="block text-sm font-semibold uppercase tracking-wide text-neutral-700 mb-1">
+          Доступность *
         </label>
+        <p className="text-xs text-neutral-500 mb-3">Насколько это место проходимо для колясочника</p>
         <div className="space-y-2">
-          {locationTypes.map((t) => (
+          {accessibilityTypes.map((t) => (
             <label
               key={t.value}
               className={`flex items-center gap-3 p-3 cursor-pointer border transition-colors ${
-                locationType === t.value
+                accessibility === t.value
                   ? "border-neutral-900 bg-neutral-50"
                   : "border-transparent hover:border-neutral-200"
               }`}
             >
               <input
                 type="radio"
-                name="locationType"
+                name="accessibility"
                 value={t.value}
-                checked={locationType === t.value}
-                onChange={() => onLocationTypeChange(t.value)}
+                checked={accessibility === t.value}
+                onChange={() => onAccessibilityChange(t.value)}
                 className="accent-black"
                 required
               />
-              <span className="text-sm text-neutral-800">{t.label}</span>
+              <div>
+                <span className="text-sm font-medium text-neutral-800">{t.label}</span>
+                <span className="text-xs text-neutral-500 ml-2">{t.description}</span>
+              </div>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      {/* Place type */}
+      <div className="bg-white border border-neutral-200 p-6">
+        <label className="block text-sm font-semibold uppercase tracking-wide text-neutral-700 mb-1">
+          Тип места *
+        </label>
+        <p className="text-xs text-neutral-500 mb-3">Что это за место</p>
+        <div className="space-y-2">
+          {placeTypes.map((t) => (
+            <label
+              key={t.value}
+              className={`flex items-center gap-3 p-3 cursor-pointer border transition-colors ${
+                placeType === t.value
+                  ? "border-neutral-900 bg-neutral-50"
+                  : "border-transparent hover:border-neutral-200"
+              }`}
+            >
+              <input
+                type="radio"
+                name="placeType"
+                value={t.value}
+                checked={placeType === t.value}
+                onChange={() => onPlaceTypeChange(t.value)}
+                className="accent-black"
+                required
+              />
+              <div>
+                <span className="text-sm font-medium text-neutral-800">{t.label}</span>
+                <span className="text-xs text-neutral-500 ml-2">{t.description}</span>
+              </div>
             </label>
           ))}
         </div>

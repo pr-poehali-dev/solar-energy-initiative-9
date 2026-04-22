@@ -9,6 +9,7 @@ interface Report {
   longitude: number;
   city: string;
   location_type: string;
+  place_type: string;
   features: string[];
   comment: string;
   photo_url: string;
@@ -17,28 +18,30 @@ interface Report {
   created_at: string;
 }
 
-const colorMap: Record<string, string> = {
+const accessibilityColorMap: Record<string, string> = {
   easy: "#22c55e",
   hard: "#eab308",
   blocked: "#ef4444",
-  historic: "#3b82f6",
-  park: "#16a34a",
 };
 
-const labelMap: Record<string, string> = {
+const accessibilityLabelMap: Record<string, string> = {
   easy: "🟢 Легко",
   hard: "🟡 Сложно",
   blocked: "🔴 Непроходимо",
+};
+
+const placeTypeLabelMap: Record<string, string> = {
+  regular: "🏘️ Обычное место",
   historic: "🏛️ Историческое",
-  park: "🌳 Парк",
+  park: "🌳 Парк / зона отдыха",
+  medical: "🏥 Медицинское",
+  transport: "🚌 Транспортный узел",
 };
 
 const legend = [
   { color: "#22c55e", label: "Легко" },
   { color: "#eab308", label: "Сложно" },
   { color: "#ef4444", label: "Непроходимо" },
-  { color: "#3b82f6", label: "Историческое" },
-  { color: "#16a34a", label: "Парк" },
 ];
 
 const TILES = {
@@ -88,8 +91,9 @@ export default function MapPreview() {
     tileRef.current = tile;
 
     reports.forEach((r) => {
-      const color = colorMap[r.location_type] || "#999";
-      const label = labelMap[r.location_type] || r.location_type;
+      const color = accessibilityColorMap[r.location_type] || "#999";
+      const accessLabel = accessibilityLabelMap[r.location_type] || r.location_type;
+      const placeLabel = placeTypeLabelMap[r.place_type] || "";
 
       const circle = L.circleMarker([r.latitude, r.longitude], {
         radius: 10,
@@ -112,7 +116,8 @@ export default function MapPreview() {
       circle.bindPopup(`
         <div style="min-width:200px;font-family:sans-serif">
           ${photoHtml}
-          <p style="font-weight:600;margin:0 0 4px">${label}</p>
+          <p style="font-weight:600;margin:0 0 2px">${accessLabel}</p>
+          ${placeLabel ? `<p style="color:#6b7280;font-size:12px;margin:0 0 4px">${placeLabel}</p>` : ""}
           ${r.submitter_name ? `<p style="color:#6b7280;font-size:12px;margin:0 0 4px">от ${r.submitter_name}</p>` : ""}
           ${r.comment ? `<p style="font-size:12px;margin:0 0 6px;color:#374151">${r.comment}</p>` : ""}
           ${featuresHtml}

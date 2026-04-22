@@ -25,7 +25,8 @@ function clearDraft() {
 export default function ReportForm() {
   const draft = loadDraft();
 
-  const [locationType, setLocationType] = useState(draft?.locationType ?? "");
+  const [accessibility, setAccessibility] = useState(draft?.accessibility ?? "");
+  const [placeType, setPlaceType] = useState(draft?.placeType ?? "");
   const [selectedFeatures, setSelectedFeatures] = useState<string[]>(draft?.selectedFeatures ?? []);
   const [comment, setComment] = useState(draft?.comment ?? "");
   const [submitterName, setSubmitterName] = useState(draft?.submitterName ?? "");
@@ -39,8 +40,8 @@ export default function ReportForm() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    saveDraft({ locationType, selectedFeatures, comment, submitterName });
-  }, [locationType, selectedFeatures, comment, submitterName]);
+    saveDraft({ accessibility, placeType, selectedFeatures, comment, submitterName });
+  }, [accessibility, placeType, selectedFeatures, comment, submitterName]);
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -150,7 +151,8 @@ export default function ReportForm() {
           latitude: coords.lat,
           longitude: coords.lng,
           city: "Анапа",
-          location_type: locationType,
+          location_type: accessibility,
+          place_type: placeType,
           features: selectedFeatures,
           comment,
           submitter_name: submitterName,
@@ -176,7 +178,8 @@ export default function ReportForm() {
     setSubmitted(false);
     setCoords(null);
     setGpsStatus("idle");
-    setLocationType("");
+    setAccessibility("");
+    setPlaceType("");
     setSelectedFeatures([]);
     setComment("");
     setSubmitterName("");
@@ -199,7 +202,7 @@ export default function ReportForm() {
         <p className="text-neutral-600 mb-4">
           Поля отмеченные * обязательны. Данные пройдут проверку перед публикацией на карте.
         </p>
-        {draft && (submitterName || comment || locationType) && (
+        {draft && (submitterName || comment || accessibility) && (
           <div className="flex items-center gap-2 text-xs text-neutral-500 bg-neutral-100 border border-neutral-200 px-4 py-2 mb-8">
             <Icon name="RotateCcw" size={13} />
             Черновик восстановлен — продолжайте с того места, где остановились
@@ -222,8 +225,10 @@ export default function ReportForm() {
             onPhotoChange={handlePhotoChange}
             onPhotoClear={handlePhotoClear}
             fileInputRef={fileInputRef}
-            locationType={locationType}
-            onLocationTypeChange={setLocationType}
+            accessibility={accessibility}
+            onAccessibilityChange={setAccessibility}
+            placeType={placeType}
+            onPlaceTypeChange={setPlaceType}
             selectedFeatures={selectedFeatures}
             onToggleFeature={toggleFeature}
             comment={comment}
