@@ -79,9 +79,7 @@ export default function ReportForm() {
   };
 
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-  const settingsHint = isIOS
-    ? "Настройки → Конфиденциальность → Службы геолокации → Safari / Chrome → «При использовании»"
-    : "Настройки → Приложения → Браузер → Разрешения → Местоположение → Разрешить";
+  const isAndroid = /Android/.test(navigator.userAgent);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -211,18 +209,71 @@ export default function ReportForm() {
             </button>
 
             {gpsStatus === "denied" && (
-              <div className="mb-3 p-4 bg-orange-50 border border-orange-200 rounded-sm">
-                <p className="text-sm font-semibold text-orange-800 mb-2">Как разрешить доступ к геолокации:</p>
-                <p className="text-xs text-orange-700 leading-relaxed mb-3">{settingsHint}</p>
-                <div className="flex gap-2 flex-wrap">
+              <div className="mb-3 border border-orange-200 bg-orange-50 overflow-hidden">
+                <div className="px-4 py-3 bg-orange-100 border-b border-orange-200">
+                  <p className="text-sm font-semibold text-orange-900">Как разрешить геолокацию — 3 шага</p>
+                </div>
+
+                {isIOS && (
+                  <div className="p-4 space-y-3">
+                    {[
+                      { num: "1", icon: "Settings", text: 'Откройте приложение «Настройки» (серая шестерёнка)' },
+                      { num: "2", icon: "MapPin", text: 'Прокрутите вниз → «Конфиденциальность» → «Службы геолокации»' },
+                      { num: "3", icon: "CheckCircle", text: 'Найдите Safari или Chrome → выберите «При использовании»' },
+                    ].map((s) => (
+                      <div key={s.num} className="flex items-start gap-3">
+                        <div className="w-6 h-6 rounded-full bg-orange-500 text-white text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">{s.num}</div>
+                        <p className="text-sm text-orange-900 leading-snug">{s.text}</p>
+                      </div>
+                    ))}
+                    <div className="mt-2 p-3 bg-white border border-orange-200 rounded text-xs text-orange-700">
+                      После этого вернитесь сюда и нажмите «Попробовать снова»
+                    </div>
+                  </div>
+                )}
+
+                {isAndroid && (
+                  <div className="p-4 space-y-3">
+                    {[
+                      { num: "1", icon: "Chrome", text: 'В браузере нажмите на значок 🔒 замка слева от адресной строки' },
+                      { num: "2", icon: "MapPin", text: 'Выберите «Разрешения» → «Местоположение»' },
+                      { num: "3", icon: "CheckCircle", text: 'Переключите на «Разрешить» и обновите страницу' },
+                    ].map((s) => (
+                      <div key={s.num} className="flex items-start gap-3">
+                        <div className="w-6 h-6 rounded-full bg-orange-500 text-white text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">{s.num}</div>
+                        <p className="text-sm text-orange-900 leading-snug">{s.text}</p>
+                      </div>
+                    ))}
+                    <div className="mt-2 p-3 bg-white border border-orange-200 rounded text-xs text-orange-700">
+                      После этого вернитесь сюда и нажмите «Попробовать снова»
+                    </div>
+                  </div>
+                )}
+
+                {!isIOS && !isAndroid && (
+                  <div className="p-4 space-y-3">
+                    {[
+                      { num: "1", text: 'Нажмите на значок 🔒 замка в адресной строке браузера' },
+                      { num: "2", text: '«Разрешения сайта» → «Местоположение» → «Разрешить»' },
+                      { num: "3", text: 'Обновите страницу и нажмите кнопку ещё раз' },
+                    ].map((s) => (
+                      <div key={s.num} className="flex items-start gap-3">
+                        <div className="w-6 h-6 rounded-full bg-orange-500 text-white text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">{s.num}</div>
+                        <p className="text-sm text-orange-900 leading-snug">{s.text}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <div className="px-4 pb-4 flex gap-2 flex-wrap">
                   <button
                     type="button"
                     onClick={detectLocation}
-                    className="text-xs bg-orange-600 text-white px-3 py-1.5 hover:bg-orange-700 transition-colors"
+                    className="text-sm bg-orange-600 text-white px-4 py-2 hover:bg-orange-700 transition-colors font-medium"
                   >
                     Попробовать снова
                   </button>
-                  <p className="text-xs text-orange-600 self-center">или поставьте точку на карте вручную ↓</p>
+                  <span className="text-xs text-orange-600 self-center">или укажите точку на карте вручную ↓</span>
                 </div>
               </div>
             )}
