@@ -215,6 +215,21 @@ export default function Admin() {
           {!loading && filtered.map((r) => (
             <div key={r.id} className="border-b border-neutral-100 last:border-0">
               <div className="px-6 py-4 flex items-start gap-4">
+                {/* Photo thumbnail */}
+                {r.photo_url ? (
+                  <a href={r.photo_url} target="_blank" rel="noreferrer" className="shrink-0">
+                    <img
+                      src={r.photo_url}
+                      alt="Фото"
+                      className="w-20 h-20 object-cover rounded border border-neutral-200 hover:opacity-80 transition-opacity"
+                    />
+                  </a>
+                ) : (
+                  <div className="w-20 h-20 bg-neutral-100 rounded border border-neutral-200 flex items-center justify-center shrink-0">
+                    <Icon name="ImageOff" size={20} className="text-neutral-300" />
+                  </div>
+                )}
+
                 {/* Left info */}
                 <div className="flex-1 min-w-0">
                   <div className="flex flex-wrap items-center gap-2 mb-2">

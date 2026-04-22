@@ -81,6 +81,30 @@ export default function ReportForm() {
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
   const isAndroid = /Android/.test(navigator.userAgent);
 
+  const uploadPhoto = async (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = async () => {
+        try {
+          const dataUrl = reader.result as string;
+          const res = await fetch(func2url["upload-photo"], {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ data: dataUrl, content_type: file.type }),
+          });
+          const json = await res.json();
+          const parsed = typeof json === "string" ? JSON.parse(json) : json;
+          if (!parsed.url) throw new Error("Нет URL");
+          resolve(parsed.url);
+        } catch (e) {
+          reject(e);
+        }
+      };
+      reader.onerror = () => reject(new Error("Ошибка чтения файла"));
+      reader.readAsDataURL(file);
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!coords) {
@@ -90,6 +114,11 @@ export default function ReportForm() {
     setLoading(true);
     setError("");
     try {
+      let photoUrl = "";
+      if (photo) {
+        photoUrl = await uploadPhoto(photo);
+      }
+
       const res = await fetch(func2url["submit-report"], {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -101,6 +130,11 @@ export default function ReportForm() {
           features: selectedFeatures,
           comment,
           submitter_name: submitterName,
+          photo_url: photoUrl,
+          photo_metadata: {
+            coordinates: `${coords.lat.toFixed(5)}, ${coords.lng.toFixed(5)}`,
+            timestamp: new Date().toISOString(),
+          },
         }),
       });
       if (!res.ok) throw new Error("Ошибка при отправке");
@@ -431,7 +465,7 @@ export default function ReportForm() {
             className="w-full bg-black text-white py-4 text-sm uppercase tracking-widest font-semibold hover:bg-neutral-800 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? <Icon name="Loader2" size={16} className="animate-spin" /> : <Icon name="Send" size={16} />}
-            {loading ? "Отправляем..." : "Отправить на проверку"}
+            {loading ? (photo ? "Загружаем фото и отправляем..." : "Отправляем...") : "Отправить на проверку"}
           </button>
         </form>
       </div>
