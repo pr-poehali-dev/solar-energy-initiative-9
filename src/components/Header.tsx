@@ -1,27 +1,63 @@
+import { useState } from "react";
+import Icon from "@/components/ui/icon";
+
 interface HeaderProps {
   className?: string;
 }
 
+const NAV_LINKS = [
+  { href: "#how", label: "Как это работает" },
+  { href: "#report", label: "Сообщить о месте" },
+];
+
 export default function Header({ className }: HeaderProps) {
+  const [open, setOpen] = useState(false);
+
+  const close = () => setOpen(false);
+
   return (
-    <header className={`absolute top-0 left-0 right-0 z-10 p-6 ${className ?? ""}`}>
+    <header className={`absolute top-0 left-0 right-0 z-20 p-6 ${className ?? ""}`}>
       <div className="flex justify-between items-center">
         <div className="text-white text-sm uppercase tracking-widest font-bold">НДЛСВ</div>
-        <nav className="flex gap-8">
-          <a
-            href="#how"
-            className="text-white hover:text-neutral-300 transition-colors duration-300 uppercase text-sm"
-          >
-            Как это работает
-          </a>
-          <a
-            href="#report"
-            className="text-white hover:text-neutral-300 transition-colors duration-300 uppercase text-sm"
-          >
-            Сообщить о месте
-          </a>
+
+        {/* Desktop nav */}
+        <nav className="hidden md:flex gap-8">
+          {NAV_LINKS.map((l) => (
+            <a
+              key={l.href}
+              href={l.href}
+              className="text-white hover:text-neutral-300 transition-colors duration-300 uppercase text-sm"
+            >
+              {l.label}
+            </a>
+          ))}
         </nav>
+
+        {/* Mobile burger */}
+        <button
+          onClick={() => setOpen((v) => !v)}
+          className="md:hidden text-white p-1"
+          aria-label={open ? "Закрыть меню" : "Открыть меню"}
+        >
+          <Icon name={open ? "X" : "Menu"} size={24} />
+        </button>
       </div>
+
+      {/* Mobile dropdown */}
+      {open && (
+        <div className="md:hidden mt-4 bg-black/80 backdrop-blur-sm border border-white/10 rounded-sm">
+          {NAV_LINKS.map((l) => (
+            <a
+              key={l.href}
+              href={l.href}
+              onClick={close}
+              className="block px-6 py-4 text-white uppercase text-sm tracking-wide hover:bg-white/10 transition-colors border-b border-white/10 last:border-0"
+            >
+              {l.label}
+            </a>
+          ))}
+        </div>
+      )}
     </header>
   );
 }
