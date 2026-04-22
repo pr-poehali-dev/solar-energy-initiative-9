@@ -21,7 +21,14 @@ export default function Header({ className }: HeaderProps) {
         <div className="text-white text-sm uppercase tracking-widest font-bold">НДЛСВ</div>
 
         {/* Desktop nav */}
-        <nav className="hidden md:flex gap-8">
+        <nav className="hidden md:flex items-center gap-8">
+          <a
+            href="tel:112"
+            className="flex items-center gap-2 bg-red-600 hover:bg-red-700 transition-colors text-white text-xs font-bold uppercase tracking-wide px-3 py-2 rounded-sm"
+          >
+            <Icon name="Phone" size={13} />
+            Помогите! Я застрял
+          </a>
           {NAV_LINKS.map((l) => (
             <a
               key={l.href}
@@ -33,14 +40,23 @@ export default function Header({ className }: HeaderProps) {
           ))}
         </nav>
 
-        {/* Mobile burger */}
-        <button
-          onClick={() => setOpen((v) => !v)}
-          className="md:hidden text-white p-1"
-          aria-label={open ? "Закрыть меню" : "Открыть меню"}
-        >
-          <Icon name={open ? "X" : "Menu"} size={24} />
-        </button>
+        {/* Mobile: SOS + burger */}
+        <div className="md:hidden flex items-center gap-3">
+          <a
+            href="tel:112"
+            className="flex items-center gap-1.5 bg-red-600 hover:bg-red-700 transition-colors text-white text-xs font-bold uppercase tracking-wide px-3 py-2 rounded-sm"
+          >
+            <Icon name="Phone" size={13} />
+            112
+          </a>
+          <button
+            onClick={() => setOpen((v) => !v)}
+            className="text-white p-1"
+            aria-label={open ? "Закрыть меню" : "Открыть меню"}
+          >
+            <Icon name={open ? "X" : "Menu"} size={24} />
+          </button>
+        </div>
       </div>
 
       {/* Mobile dropdown */}
