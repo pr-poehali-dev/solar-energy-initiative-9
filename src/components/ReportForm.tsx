@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useState, lazy, Suspense } from "react";
 import Icon from "@/components/ui/icon";
 import func2url from "../../backend/func2url.json";
+
+const LocationPicker = lazy(() => import("./LocationPicker"));
 
 const locationTypes = [
   { value: "easy", label: "🟢 Легко. Ровный асфальт, пологий пандус" },
@@ -131,7 +133,7 @@ export default function ReportForm() {
             <button
               type="button"
               onClick={detectLocation}
-              className="w-full flex items-center gap-3 p-4 bg-neutral-50 border border-dashed border-neutral-300 hover:bg-neutral-100 transition-colors text-left"
+              className="w-full flex items-center gap-3 p-4 bg-neutral-50 border border-dashed border-neutral-300 hover:bg-neutral-100 transition-colors text-left mb-3"
             >
               <Icon
                 name={gpsStatus === "loading" ? "Loader2" : gpsStatus === "found" ? "MapPinCheck" : "Navigation"}
@@ -147,9 +149,19 @@ export default function ReportForm() {
                   </p>
                 )}
                 {gpsStatus === "error" && <p className="text-sm font-medium text-red-600">Не удалось получить координаты. Проверьте разрешения.</p>}
-                <p className="text-xs text-neutral-500 mt-0.5">Нажмите повторно, чтобы обновить точку</p>
+                <p className="text-xs text-neutral-500 mt-0.5">Нажмите повторно, чтобы обновить · или поставьте точку на карте пальцем</p>
               </div>
             </button>
+
+            <Suspense fallback={<div className="h-[220px] bg-neutral-100 flex items-center justify-center text-sm text-neutral-400">Загрузка карты...</div>}>
+              <LocationPicker
+                coords={coords}
+                onChange={(c) => { setCoords(c); setGpsStatus("found"); }}
+              />
+            </Suspense>
+            {!coords && (
+              <p className="text-xs text-neutral-400 mt-2 text-center">Нажмите на карту, чтобы поставить точку вручную</p>
+            )}
           </div>
 
           {/* Submitter name */}
