@@ -32,6 +32,7 @@ export default function Footer() {
               <div className="flex flex-col gap-1 sm:gap-2">
                 <h3 className="mb-1 sm:mb-2 uppercase text-neutral-400 text-xs sm:text-sm">Статусы точек</h3>
                 <span className="text-green-400 text-sm sm:text-base">🟢 Легко проехать</span>
+                <span className="text-blue-400 text-sm sm:text-base">🔵 Нейтрально</span>
                 <span className="text-yellow-400 text-sm sm:text-base">🟡 Сложно, но можно</span>
                 <span className="text-red-400 text-sm sm:text-base">🔴 Непроходимо</span>
               </div>
