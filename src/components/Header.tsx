@@ -19,64 +19,33 @@ export default function Header({ className }: HeaderProps) {
   return (
     <header className={`absolute top-0 left-0 right-0 z-20 p-6 ${className ?? ""}`}>
       <div className="flex justify-between items-center">
+
+        {/* Лого */}
         <div className="text-white text-sm uppercase tracking-widest font-bold">НДЛСВ</div>
 
-        {/* Desktop nav */}
-        <nav className="hidden md:flex items-center gap-8">
-          <a
-            href="tel:112"
-            className="flex items-center gap-2 bg-red-600 hover:bg-red-700 transition-colors text-white text-xs font-bold uppercase tracking-wide px-3 py-2 rounded-sm"
-          >
-            <Icon name="Phone" size={13} />
-            Помогите! Я застрял
-          </a>
-          {NAV_LINKS.map((l) => (
-            <a
-              key={l.href}
-              href={l.href}
-              className="text-white hover:text-neutral-300 transition-colors duration-300 uppercase text-sm"
-            >
-              {l.label}
-            </a>
-          ))}
-          <Link
-            to="/stories"
-            className="text-white hover:text-neutral-300 transition-colors duration-300 uppercase text-sm flex items-center gap-1.5"
-          >
-            <Icon name="Video" size={14} />
-            Вся правда
-          </Link>
-          <Link
-            to="/documents"
-            className="text-white hover:text-neutral-300 transition-colors duration-300 uppercase text-sm flex items-center gap-1.5"
-          >
-            <Icon name="FileText" size={14} />
-            Заявления
-          </Link>
-        </nav>
+        {/* Центр — SOS кнопка */}
+        <a
+          href="tel:112"
+          className="flex items-center gap-2 bg-red-600 hover:bg-red-700 transition-colors text-white text-xs font-bold uppercase tracking-wide px-4 py-2 rounded-sm"
+        >
+          <Icon name="Phone" size={13} />
+          <span className="hidden sm:inline">Помогите! Я застрял</span>
+          <span className="sm:hidden">112</span>
+        </a>
 
-        {/* Mobile: SOS + burger */}
-        <div className="md:hidden flex items-center gap-3">
-          <a
-            href="tel:112"
-            className="flex items-center gap-1.5 bg-red-600 hover:bg-red-700 transition-colors text-white text-xs font-bold uppercase tracking-wide px-3 py-2 rounded-sm"
-          >
-            <Icon name="Phone" size={13} />
-            112
-          </a>
-          <button
-            onClick={() => setOpen((v) => !v)}
-            className="text-white p-1"
-            aria-label={open ? "Закрыть меню" : "Открыть меню"}
-          >
-            <Icon name={open ? "X" : "Menu"} size={24} />
-          </button>
-        </div>
+        {/* Бургер */}
+        <button
+          onClick={() => setOpen((v) => !v)}
+          className="text-white p-1"
+          aria-label={open ? "Закрыть меню" : "Открыть меню"}
+        >
+          <Icon name={open ? "X" : "Menu"} size={24} />
+        </button>
       </div>
 
-      {/* Mobile dropdown */}
+      {/* Dropdown меню */}
       {open && (
-        <div className="md:hidden mt-4 bg-black/80 backdrop-blur-sm border border-white/10 rounded-sm">
+        <div className="mt-4 bg-black/80 backdrop-blur-sm border border-white/10 rounded-sm">
           {NAV_LINKS.map((l) => (
             <a
               key={l.href}
