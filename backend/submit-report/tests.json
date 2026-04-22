@@ -1,0 +1,31 @@
+{
+  "tests": [
+    {
+      "name": "Submit valid report",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "latitude": 44.895,
+        "longitude": 37.316,
+        "location_type": "easy",
+        "features": ["Подходит для электроскутера"],
+        "comment": "Ровный асфальт у набережной",
+        "submitter_name": "Тест",
+        "city": "Анапа"
+      },
+      "expectedStatus": 201,
+      "expectedBody": {"success": true},
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Reject missing required fields",
+      "method": "POST",
+      "path": "/",
+      "body": {"comment": "без координат"},
+      "expectedStatus": 400,
+      "expectedBody": {"error": "latitude, longitude"},
+
+      "bodyMatcher": "partial"
+    }
+  ]
+}
