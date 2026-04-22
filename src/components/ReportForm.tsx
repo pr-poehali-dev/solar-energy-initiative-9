@@ -1,6 +1,23 @@
-import { useState, lazy, Suspense, useRef } from "react";
+import { useState, lazy, Suspense, useRef, useEffect } from "react";
 import Icon from "@/components/ui/icon";
 import func2url from "../../backend/func2url.json";
+
+const DRAFT_KEY = "ndlsv_report_draft";
+
+function loadDraft() {
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) { void e; return null; }
+}
+
+function saveDraft(data: object) {
+  try { localStorage.setItem(DRAFT_KEY, JSON.stringify(data)); } catch (e) { void e; }
+}
+
+function clearDraft() {
+  try { localStorage.removeItem(DRAFT_KEY); } catch (e) { void e; }
+}
 
 const LocationPicker = lazy(() => import("./LocationPicker"));
 
@@ -20,10 +37,12 @@ const features = [
 ];
 
 export default function ReportForm() {
-  const [locationType, setLocationType] = useState("");
-  const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
-  const [comment, setComment] = useState("");
-  const [submitterName, setSubmitterName] = useState("");
+  const draft = loadDraft();
+
+  const [locationType, setLocationType] = useState(draft?.locationType ?? "");
+  const [selectedFeatures, setSelectedFeatures] = useState<string[]>(draft?.selectedFeatures ?? []);
+  const [comment, setComment] = useState(draft?.comment ?? "");
+  const [submitterName, setSubmitterName] = useState(draft?.submitterName ?? "");
   const [gpsStatus, setGpsStatus] = useState<"idle" | "loading" | "found" | "denied" | "error">("idle");
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [submitted, setSubmitted] = useState(false);
@@ -32,6 +51,10 @@ export default function ReportForm() {
   const [photo, setPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    saveDraft({ locationType, selectedFeatures, comment, submitterName });
+  }, [locationType, selectedFeatures, comment, submitterName]);
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -138,6 +161,7 @@ export default function ReportForm() {
         }),
       });
       if (!res.ok) throw new Error("Ошибка при отправке");
+      clearDraft();
       setSubmitted(true);
     } catch {
       setError("Не удалось отправить заявку. Попробуйте ещё раз.");
@@ -147,6 +171,7 @@ export default function ReportForm() {
   };
 
   const resetForm = () => {
+    clearDraft();
     setSubmitted(false);
     setCoords(null);
     setGpsStatus("idle");
@@ -188,9 +213,15 @@ export default function ReportForm() {
         <h2 className="text-3xl lg:text-4xl font-bold text-neutral-900 mb-2 leading-tight">
           Сообщите о месте
         </h2>
-        <p className="text-neutral-600 mb-12">
+        <p className="text-neutral-600 mb-4">
           Поля отмеченные * обязательны. Данные пройдут проверку перед публикацией на карте.
         </p>
+        {draft && (submitterName || comment || locationType) && (
+          <div className="flex items-center gap-2 text-xs text-neutral-500 bg-neutral-100 border border-neutral-200 px-4 py-2 mb-8">
+            <Icon name="RotateCcw" size={13} />
+            Черновик восстановлен — продолжайте с того места, где остановились
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-8">
 
