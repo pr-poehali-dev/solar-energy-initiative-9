@@ -65,10 +65,16 @@ export default function Hero() {
         </p>
         {count !== null && (
           <div className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-sm border border-white/20 px-6 py-3 mb-8 rounded-sm">
-            <span className="text-3xl font-bold tabular-nums">{displayed}</span>
-            <span className="text-sm opacity-80 text-left leading-tight">
-              мест уже<br/>отмечено
-            </span>
+            {count === 0 ? (
+              <span className="text-sm opacity-80">Будьте первым, кто отметит место</span>
+            ) : (
+              <>
+                <span className="text-3xl font-bold tabular-nums">{displayed}</span>
+                <span className="text-sm opacity-80 text-left leading-tight">
+                  мест уже<br/>подтверждено
+                </span>
+              </>
+            )}
           </div>
         )}
 
