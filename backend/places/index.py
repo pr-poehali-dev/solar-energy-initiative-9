@@ -53,7 +53,7 @@ def handle_support(event, method):
                 return {"statusCode": 403, "headers": CORS_HEADERS,
                         "body": json.dumps({"error": "Доступ запрещён"})}
             cur.execute(
-                f"SELECT id, name, email, message, status, reply, replied_at, created_at FROM {SCHEMA}.support_tickets ORDER BY created_at DESC"
+                f"SELECT id, name, email, message, status, admin_reply, replied_at, created_at FROM {SCHEMA}.support_tickets ORDER BY created_at DESC"
             )
             rows = cur.fetchall()
             tickets = [
@@ -79,7 +79,7 @@ def handle_support(event, method):
                 return {"statusCode": 400, "headers": CORS_HEADERS,
                         "body": json.dumps({"error": "id и reply обязательны"})}
             cur.execute(
-                f"UPDATE {SCHEMA}.support_tickets SET reply=%s, status='replied', replied_at=%s WHERE id=%s RETURNING id",
+                f"UPDATE {SCHEMA}.support_tickets SET admin_reply=%s, status='replied', replied_at=%s WHERE id=%s RETURNING id",
                 (reply, datetime.now(timezone.utc), ticket_id),
             )
             row = cur.fetchone()
