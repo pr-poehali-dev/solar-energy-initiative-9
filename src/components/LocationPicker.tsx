@@ -9,11 +9,11 @@ interface Props {
 const TILES = {
   satellite: {
     url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-    attribution: "Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics",
+    attribution: "",
   },
   map: {
     url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    attribution: "",
   },
 };
 
@@ -32,6 +32,7 @@ export default function LocationPicker({ coords, onChange }: Props) {
       zoom: coords ? 17 : 14,
       scrollWheelZoom: false,
       zoomControl: true,
+      attributionControl: false,
     });
 
     const tile = L.tileLayer(TILES.satellite.url, {
