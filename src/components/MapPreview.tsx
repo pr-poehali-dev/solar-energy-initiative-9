@@ -144,66 +144,66 @@ export default function MapPreview() {
   }, [mode]);
 
   return (
-    <div id="map" className="min-h-screen bg-white px-6 py-24">
-      <div className="max-w-5xl mx-auto">
-        <h3 className="uppercase text-sm tracking-widest text-neutral-500 mb-4">Публичная карта</h3>
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10">
-          <h2 className="text-3xl lg:text-5xl font-bold text-neutral-900 leading-tight">
-            Подтверждённые<br />места на карте
-          </h2>
-          <p className="text-neutral-500 text-sm max-w-xs lg:text-right">
-            {loading
-              ? "Загружаем точки..."
-              : reports.length > 0
-              ? `${reports.length} подтверждённых точек · Анапа`
-              : "Подтверждённых точек пока нет"}
-          </p>
+    <div id="map" className="relative w-full h-screen overflow-hidden">
+      {loading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-neutral-100 z-10">
+          <Icon name="Loader2" size={32} className="animate-spin text-neutral-400" />
         </div>
+      )}
+      <div ref={containerRef} style={{ height: "100%", width: "100%" }} />
 
-        <div className="relative w-full h-[520px] border border-neutral-200 overflow-hidden">
-          {loading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-neutral-100 z-10">
-              <Icon name="Loader2" size={32} className="animate-spin text-neutral-400" />
-            </div>
-          )}
-          <div ref={containerRef} style={{ height: "100%", width: "100%" }} />
-          <div className="absolute bottom-4 left-4 z-[1000] flex rounded overflow-hidden shadow">
-            <button
-              type="button"
-              onClick={() => setMode("satellite")}
-              className={`px-3 py-1.5 text-xs font-medium transition-colors ${
-                mode === "satellite"
-                  ? "bg-black text-white"
-                  : "bg-white text-neutral-700 hover:bg-neutral-100"
-              }`}
-            >
-              Спутник
-            </button>
-            <button
-              type="button"
-              onClick={() => setMode("map")}
-              className={`px-3 py-1.5 text-xs font-medium transition-colors ${
-                mode === "map"
-                  ? "bg-black text-white"
-                  : "bg-white text-neutral-700 hover:bg-neutral-100"
-              }`}
-            >
-              Схема
-            </button>
+      {/* Заголовок поверх карты */}
+      <div className="absolute bottom-10 left-6 z-[1000] pointer-events-none">
+        <p className="text-white/70 text-xs uppercase tracking-widest mb-1">Публичная карта</p>
+        <h2 className="text-2xl lg:text-4xl font-bold text-white leading-tight drop-shadow-lg">
+          Подтверждённые<br />места на карте
+        </h2>
+        <p className="text-white/70 text-sm mt-2 drop-shadow">
+          {loading
+            ? "Загружаем точки..."
+            : reports.length > 0
+            ? `${reports.length} подтверждённых точек · Анапа`
+            : "Подтверждённых точек пока нет"}
+        </p>
+      </div>
+
+      {/* Легенда */}
+      <div className="absolute bottom-10 right-6 z-[1000] flex flex-col gap-2 pointer-events-none">
+        {legend.map((l) => (
+          <div key={l.label} className="flex items-center gap-2">
+            <div
+              className="w-3 h-3 rounded-full border-2 border-white shadow"
+              style={{ backgroundColor: l.color }}
+            />
+            <span className="text-sm text-white drop-shadow">{l.label}</span>
           </div>
-        </div>
+        ))}
+      </div>
 
-        <div className="flex flex-wrap gap-6 mt-6">
-          {legend.map((l) => (
-            <div key={l.label} className="flex items-center gap-2">
-              <div
-                className="w-3 h-3 rounded-full border-2 border-white shadow"
-                style={{ backgroundColor: l.color }}
-              />
-              <span className="text-sm text-neutral-600">{l.label}</span>
-            </div>
-          ))}
-        </div>
+      {/* Переключатель слоя */}
+      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-[1000] flex rounded overflow-hidden shadow">
+        <button
+          type="button"
+          onClick={() => setMode("satellite")}
+          className={`px-3 py-1.5 text-xs font-medium transition-colors ${
+            mode === "satellite"
+              ? "bg-black text-white"
+              : "bg-white text-neutral-700 hover:bg-neutral-100"
+          }`}
+        >
+          Спутник
+        </button>
+        <button
+          type="button"
+          onClick={() => setMode("map")}
+          className={`px-3 py-1.5 text-xs font-medium transition-colors ${
+            mode === "map"
+              ? "bg-black text-white"
+              : "bg-white text-neutral-700 hover:bg-neutral-100"
+          }`}
+        >
+          Схема
+        </button>
       </div>
     </div>
   );

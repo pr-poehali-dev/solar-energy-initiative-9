@@ -6,11 +6,6 @@ interface HeaderProps {
   className?: string;
 }
 
-const NAV_LINKS = [
-  { href: "#how", label: "Как это работает" },
-  { href: "#report", label: "Сообщить о месте" },
-];
-
 export default function Header({ className }: HeaderProps) {
   const [open, setOpen] = useState(false);
 
@@ -32,8 +27,14 @@ export default function Header({ className }: HeaderProps) {
           Помогите! Я застрял
         </a>
 
-        {/* Бургер */}
-        <div className="w-20 flex justify-end">
+        {/* Белая кнопка + Бургер */}
+        <div className="flex items-center gap-3">
+          <a
+            href="#report"
+            className="hidden sm:inline-block bg-white text-black text-xs font-bold uppercase tracking-wide px-4 py-2.5 hover:bg-neutral-200 transition-colors rounded-sm whitespace-nowrap"
+          >
+            Отметить место
+          </a>
           <button
             onClick={() => setOpen((v) => !v)}
             className="text-white p-1"
@@ -52,16 +53,21 @@ export default function Header({ className }: HeaderProps) {
       {/* Dropdown меню */}
       {open && (
         <div className="mt-4 bg-black/80 backdrop-blur-sm border border-white/10 rounded-sm">
-          {NAV_LINKS.map((l) => (
-            <a
-              key={l.href}
-              href={l.href}
-              onClick={close}
-              className="block px-6 py-4 text-white uppercase text-sm tracking-wide hover:bg-white/10 transition-colors border-b border-white/10"
-            >
-              {l.label}
-            </a>
-          ))}
+          <a
+            href="#report"
+            onClick={close}
+            className="flex items-center gap-2 px-6 py-4 text-white uppercase text-sm tracking-wide hover:bg-white/10 transition-colors border-b border-white/10"
+          >
+            <Icon name="MapPin" size={14} />
+            Отметить место
+          </a>
+          <a
+            href="#how"
+            onClick={close}
+            className="block px-6 py-4 text-white uppercase text-sm tracking-wide hover:bg-white/10 transition-colors border-b border-white/10"
+          >
+            Как это работает
+          </a>
           <Link
             to="/places"
             onClick={close}
