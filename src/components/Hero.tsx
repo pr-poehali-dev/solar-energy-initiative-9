@@ -53,6 +53,7 @@ export default function Hero({ onReportClick }: { onReportClick?: () => void }) 
       </motion.div>
 
       <div className="absolute inset-0 bg-black/40 z-[1]" />
+      <div className="absolute bottom-0 left-0 right-0 h-32 z-[2]" style={{ background: "linear-gradient(to bottom, transparent, #ffffff)" }} />
       <div className="relative z-10 text-center text-white px-6">
         <div className="inline-block bg-white/10 backdrop-blur-sm border border-white/20 text-white text-xs uppercase tracking-widest px-4 py-2 mb-8 rounded-sm">
           Бета-версия · Анапа
