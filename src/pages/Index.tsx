@@ -16,8 +16,8 @@ const Index = () => {
         <Hero />
         <Header onReportClick={() => setDrawerOpen(true)} />
       </div>
-      <MapPreview />
       <Featured />
+      <MapPreview />
       <Promo />
       <Footer />
       <ReportDrawer open={drawerOpen} onOpenChange={setDrawerOpen} />
