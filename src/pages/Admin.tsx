@@ -25,8 +25,13 @@ export default function Admin() {
   const [rejectReason, setRejectReason] = useState("");
   const [rejectTarget, setRejectTarget] = useState<number | null>(null);
 
-  // Tab: "reports" | "videos" | "places"
-  const [activeTab, setActiveTab] = useState<"reports" | "videos" | "places">("reports");
+  // Tab: "reports" | "videos" | "places" | "support"
+  const [activeTab, setActiveTab] = useState<"reports" | "videos" | "places" | "support">("reports");
+
+  // Support
+  const [tickets, setTickets] = useState<{id: number; name: string; email: string; message: string; status: string; reply: string | null; replied_at: string | null; created_at: string}[]>([]);
+  const [replyText, setReplyText] = useState<Record<number, string>>({});
+  const [replySaving, setReplySaving] = useState<number | null>(null);
 
   // Videos
   const [videos, setVideos] = useState<VideoItem[]>([]);
@@ -83,6 +88,33 @@ export default function Admin() {
     sessionStorage.removeItem("admin_token");
     setToken("");
     setPassword("");
+  };
+
+  const fetchTickets = useCallback(async () => {
+    const res = await fetch(`${func2url["places"]}?type=support`, {
+      headers: { "X-Admin-Token": token },
+    });
+    const raw = await res.json();
+    const data = typeof raw === "string" ? JSON.parse(raw) : raw;
+    setTickets(data.tickets || []);
+  }, [token]);
+
+  useEffect(() => {
+    if (token) fetchTickets();
+  }, [token, fetchTickets]);
+
+  const sendReply = async (id: number) => {
+    const reply = replyText[id] || "";
+    if (!reply.trim()) return;
+    setReplySaving(id);
+    await fetch(`${func2url["places"]}?type=support`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json", "X-Admin-Token": token },
+      body: JSON.stringify({ id, reply }),
+    });
+    await fetchTickets();
+    setReplyText((prev) => ({ ...prev, [id]: "" }));
+    setReplySaving(null);
   };
 
   const fetchVideos = useCallback(async () => {
@@ -199,6 +231,13 @@ export default function Admin() {
             <Icon name="Video" size={14} className="inline mr-1.5" />
             Интервью · {videos.length}
           </button>
+          <button
+            onClick={() => setActiveTab("support")}
+            className={`px-4 py-2 text-sm font-medium transition-colors ${activeTab === "support" ? "bg-neutral-900 text-white" : "bg-white border border-neutral-200 text-neutral-600 hover:border-neutral-400"}`}
+          >
+            <Icon name="MessageCircle" size={14} className="inline mr-1.5" />
+            Поддержка · {tickets.filter(t => t.status === "new").length}
+          </button>
         </div>
 
         {activeTab === "videos" && (
@@ -217,6 +256,52 @@ export default function Admin() {
 
         {activeTab === "places" && (
           <AdminPlacesTab token={token} />
+        )}
+
+        {activeTab === "support" && (
+          <div className="space-y-4">
+            <h2 className="text-lg font-semibold">Обращения в поддержку</h2>
+            {tickets.length === 0 && <p className="text-neutral-400 text-sm">Обращений пока нет</p>}
+            {tickets.map((t) => (
+              <div key={t.id} className={`bg-white border p-5 space-y-3 ${t.status === "new" ? "border-neutral-900" : "border-neutral-200"}`}>
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="font-medium text-sm">{t.name}</p>
+                    {t.email && <p className="text-xs text-neutral-400">{t.email}</p>}
+                    <p className="text-xs text-neutral-400 mt-0.5">{new Date(t.created_at).toLocaleString("ru-RU")}</p>
+                  </div>
+                  <span className={`text-xs px-2 py-0.5 rounded-sm font-medium ${t.status === "new" ? "bg-neutral-900 text-white" : "bg-green-100 text-green-700"}`}>
+                    {t.status === "new" ? "Новое" : "Отвечено"}
+                  </span>
+                </div>
+                <p className="text-sm text-neutral-700 whitespace-pre-wrap">{t.message}</p>
+                {t.reply && (
+                  <div className="bg-neutral-50 border border-neutral-200 p-3 text-sm text-neutral-600">
+                    <span className="text-xs uppercase tracking-wide text-neutral-400 block mb-1">Ваш ответ</span>
+                    {t.reply}
+                  </div>
+                )}
+                {t.status === "new" && (
+                  <div className="flex gap-2">
+                    <textarea
+                      className="flex-1 border border-neutral-200 p-2 text-sm resize-none focus:outline-none focus:border-neutral-900"
+                      rows={2}
+                      placeholder="Напишите ответ..."
+                      value={replyText[t.id] || ""}
+                      onChange={(e) => setReplyText((prev) => ({ ...prev, [t.id]: e.target.value }))}
+                    />
+                    <button
+                      onClick={() => sendReply(t.id)}
+                      disabled={replySaving === t.id}
+                      className="bg-neutral-900 text-white px-4 py-2 text-sm hover:bg-neutral-700 transition-colors disabled:opacity-50"
+                    >
+                      {replySaving === t.id ? "..." : "Ответить"}
+                    </button>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         )}
 
         {activeTab === "reports" && (
