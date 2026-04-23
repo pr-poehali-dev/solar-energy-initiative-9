@@ -29,9 +29,11 @@ export default function Admin() {
   const [activeTab, setActiveTab] = useState<"reports" | "videos" | "places" | "support">("reports");
 
   // Support
-  const [tickets, setTickets] = useState<{id: number; name: string; email: string; message: string; status: string; reply: string | null; replied_at: string | null; created_at: string}[]>([]);
-  const [replyText, setReplyText] = useState<Record<number, string>>({});
-  const [replySaving, setReplySaving] = useState<number | null>(null);
+  const [tickets, setTickets] = useState<{id: number; name: string; email: string | null; status: string; created_at: string; msg_count: number; last_msg: string | null}[]>([]);
+  const [activeTicket, setActiveTicket] = useState<number | null>(null);
+  const [messages, setMessages] = useState<{id: number; sender: string; text: string; created_at: string}[]>([]);
+  const [chatInput, setChatInput] = useState("");
+  const [chatSending, setChatSending] = useState(false);
 
   // Videos
   const [videos, setVideos] = useState<VideoItem[]>([]);
@@ -99,23 +101,37 @@ export default function Admin() {
     setTickets(data.tickets || []);
   }, [token]);
 
+  const fetchMessages = useCallback(async (ticketId: number) => {
+    const res = await fetch(`${func2url["places"]}?type=support&ticket_id=${ticketId}`, {
+      headers: { "X-Admin-Token": token },
+    });
+    const raw = await res.json();
+    const data = typeof raw === "string" ? JSON.parse(raw) : raw;
+    setMessages(data.messages || []);
+  }, [token]);
+
+  const openTicket = (id: number) => {
+    setActiveTicket(id);
+    fetchMessages(id);
+  };
+
+  const sendChatMessage = async () => {
+    if (!chatInput.trim() || !activeTicket) return;
+    setChatSending(true);
+    await fetch(`${func2url["places"]}?type=support`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Admin-Token": token },
+      body: JSON.stringify({ ticket_id: activeTicket, text: chatInput.trim() }),
+    });
+    setChatInput("");
+    await fetchMessages(activeTicket);
+    await fetchTickets();
+    setChatSending(false);
+  };
+
   useEffect(() => {
     if (token) fetchTickets();
   }, [token, fetchTickets]);
-
-  const sendReply = async (id: number) => {
-    const reply = replyText[id] || "";
-    if (!reply.trim()) return;
-    setReplySaving(id);
-    await fetch(`${func2url["places"]}?type=support`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json", "X-Admin-Token": token },
-      body: JSON.stringify({ id, reply }),
-    });
-    await fetchTickets();
-    setReplyText((prev) => ({ ...prev, [id]: "" }));
-    setReplySaving(null);
-  };
 
   const fetchVideos = useCallback(async () => {
     const res = await fetch(`${func2url["videos"]}?admin=1`);
@@ -259,48 +275,99 @@ export default function Admin() {
         )}
 
         {activeTab === "support" && (
-          <div className="space-y-4">
-            <h2 className="text-lg font-semibold">Обращения в поддержку</h2>
-            {tickets.length === 0 && <p className="text-neutral-400 text-sm">Обращений пока нет</p>}
-            {tickets.map((t) => (
-              <div key={t.id} className={`bg-white border p-5 space-y-3 ${t.status === "new" ? "border-neutral-900" : "border-neutral-200"}`}>
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <p className="font-medium text-sm">{t.name}</p>
-                    {t.email && <p className="text-xs text-neutral-400">{t.email}</p>}
-                    <p className="text-xs text-neutral-400 mt-0.5">{new Date(t.created_at).toLocaleString("ru-RU")}</p>
-                  </div>
-                  <span className={`text-xs px-2 py-0.5 rounded-sm font-medium ${t.status === "new" ? "bg-neutral-900 text-white" : "bg-green-100 text-green-700"}`}>
-                    {t.status === "new" ? "Новое" : "Отвечено"}
-                  </span>
-                </div>
-                <p className="text-sm text-neutral-700 whitespace-pre-wrap">{t.message}</p>
-                {t.reply && (
-                  <div className="bg-neutral-50 border border-neutral-200 p-3 text-sm text-neutral-600">
-                    <span className="text-xs uppercase tracking-wide text-neutral-400 block mb-1">Ваш ответ</span>
-                    {t.reply}
-                  </div>
+          <div className="flex gap-4 h-[calc(100vh-220px)] min-h-[500px]">
+            {/* Список обращений */}
+            <div className="w-72 shrink-0 flex flex-col border border-neutral-200 bg-white overflow-hidden">
+              <div className="px-4 py-3 border-b border-neutral-100 text-xs uppercase tracking-widest text-neutral-400 font-medium">
+                Обращения · {tickets.length}
+              </div>
+              <div className="flex-1 overflow-y-auto">
+                {tickets.length === 0 && (
+                  <p className="text-neutral-400 text-sm p-4">Обращений пока нет</p>
                 )}
-                {t.status === "new" && (
-                  <div className="flex gap-2">
+                {tickets.map((t) => (
+                  <button
+                    key={t.id}
+                    onClick={() => openTicket(t.id)}
+                    className={`w-full text-left px-4 py-3 border-b border-neutral-100 hover:bg-neutral-50 transition-colors ${activeTicket === t.id ? "bg-neutral-50 border-l-2 border-l-neutral-900" : ""}`}
+                  >
+                    <div className="flex items-center justify-between gap-2 mb-0.5">
+                      <span className="font-medium text-sm truncate">{t.name}</span>
+                      {t.status === "new" && (
+                        <span className="w-2 h-2 rounded-full bg-neutral-900 shrink-0" />
+                      )}
+                    </div>
+                    {t.last_msg && (
+                      <p className="text-xs text-neutral-400 truncate">{t.last_msg}</p>
+                    )}
+                    <p className="text-xs text-neutral-300 mt-0.5">
+                      {new Date(t.created_at).toLocaleDateString("ru-RU")}
+                    </p>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Чат */}
+            <div className="flex-1 flex flex-col border border-neutral-200 bg-white overflow-hidden">
+              {!activeTicket ? (
+                <div className="flex-1 flex items-center justify-center text-neutral-300">
+                  <div className="text-center">
+                    <Icon name="MessageCircle" size={40} className="mx-auto mb-2 opacity-30" />
+                    <p className="text-sm">Выберите обращение слева</p>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {/* Шапка чата */}
+                  <div className="px-5 py-3 border-b border-neutral-100 flex items-center justify-between">
+                    <div>
+                      <p className="font-medium text-sm">{tickets.find(t => t.id === activeTicket)?.name}</p>
+                      {tickets.find(t => t.id === activeTicket)?.email && (
+                        <p className="text-xs text-neutral-400">{tickets.find(t => t.id === activeTicket)?.email}</p>
+                      )}
+                    </div>
+                    <span className={`text-xs px-2 py-0.5 font-medium ${tickets.find(t => t.id === activeTicket)?.status === "new" ? "bg-neutral-900 text-white" : "bg-green-100 text-green-700"}`}>
+                      {tickets.find(t => t.id === activeTicket)?.status === "new" ? "Новое" : "Отвечено"}
+                    </span>
+                  </div>
+
+                  {/* Сообщения */}
+                  <div className="flex-1 overflow-y-auto p-5 space-y-3">
+                    {messages.map((m) => (
+                      <div key={m.id} className={`flex ${m.sender === "admin" ? "justify-end" : "justify-start"}`}>
+                        <div className={`max-w-[75%] px-4 py-2.5 text-sm rounded-sm ${m.sender === "admin" ? "bg-neutral-900 text-white" : "bg-neutral-100 text-neutral-800"}`}>
+                          <p className="whitespace-pre-wrap">{m.text}</p>
+                          <p className={`text-xs mt-1 ${m.sender === "admin" ? "text-neutral-400" : "text-neutral-400"}`}>
+                            {new Date(m.created_at).toLocaleTimeString("ru-RU", {hour: "2-digit", minute: "2-digit"})}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Поле ввода */}
+                  <div className="border-t border-neutral-100 p-3 flex gap-2">
                     <textarea
-                      className="flex-1 border border-neutral-200 p-2 text-sm resize-none focus:outline-none focus:border-neutral-900"
+                      className="flex-1 border border-neutral-200 p-2.5 text-sm resize-none focus:outline-none focus:border-neutral-900"
                       rows={2}
                       placeholder="Напишите ответ..."
-                      value={replyText[t.id] || ""}
-                      onChange={(e) => setReplyText((prev) => ({ ...prev, [t.id]: e.target.value }))}
+                      value={chatInput}
+                      onChange={(e) => setChatInput(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendChatMessage(); } }}
                     />
                     <button
-                      onClick={() => sendReply(t.id)}
-                      disabled={replySaving === t.id}
-                      className="bg-neutral-900 text-white px-4 py-2 text-sm hover:bg-neutral-700 transition-colors disabled:opacity-50"
+                      onClick={sendChatMessage}
+                      disabled={chatSending || !chatInput.trim()}
+                      className="bg-neutral-900 text-white px-4 py-2 text-sm hover:bg-neutral-700 transition-colors disabled:opacity-40 flex items-center gap-1.5"
                     >
-                      {replySaving === t.id ? "..." : "Ответить"}
+                      <Icon name="Send" size={14} />
+                      {chatSending ? "..." : "Отправить"}
                     </button>
                   </div>
-                )}
-              </div>
-            ))}
+                </>
+              )}
+            </div>
           </div>
         )}
 
