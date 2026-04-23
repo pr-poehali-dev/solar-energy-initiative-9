@@ -30,7 +30,6 @@ def handle_support(event, method):
     conn = psycopg2.connect(os.environ["DATABASE_URL"])
     try:
         cur = conn.cursor()
-        cur.execute(f"SET search_path TO {SCHEMA}")
 
         if method == "POST":
             body = json.loads(event.get("body") or "{}")
@@ -41,7 +40,7 @@ def handle_support(event, method):
                 return {"statusCode": 400, "headers": CORS_HEADERS,
                         "body": json.dumps({"error": "Имя и сообщение обязательны"})}
             cur.execute(
-                "INSERT INTO support_tickets (name, email, message) VALUES (%s, %s, %s) RETURNING id",
+                f"INSERT INTO {SCHEMA}.support_tickets (name, email, message) VALUES (%s, %s, %s) RETURNING id",
                 (name, email or None, message),
             )
             new_id = cur.fetchone()[0]
@@ -54,7 +53,7 @@ def handle_support(event, method):
                 return {"statusCode": 403, "headers": CORS_HEADERS,
                         "body": json.dumps({"error": "Доступ запрещён"})}
             cur.execute(
-                "SELECT id, name, email, message, status, reply, replied_at, created_at FROM support_tickets ORDER BY created_at DESC"
+                f"SELECT id, name, email, message, status, reply, replied_at, created_at FROM {SCHEMA}.support_tickets ORDER BY created_at DESC"
             )
             rows = cur.fetchall()
             tickets = [
@@ -80,7 +79,7 @@ def handle_support(event, method):
                 return {"statusCode": 400, "headers": CORS_HEADERS,
                         "body": json.dumps({"error": "id и reply обязательны"})}
             cur.execute(
-                "UPDATE support_tickets SET reply=%s, status='replied', replied_at=%s WHERE id=%s RETURNING id",
+                f"UPDATE {SCHEMA}.support_tickets SET reply=%s, status='replied', replied_at=%s WHERE id=%s RETURNING id",
                 (reply, datetime.now(timezone.utc), ticket_id),
             )
             row = cur.fetchone()
