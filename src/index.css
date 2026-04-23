@@ -1,14 +1,13 @@
 @import "leaflet/dist/leaflet.css";
 
 .leaflet-tile {
-  image-rendering: auto;
   border: 0 !important;
   outline: none !important;
   box-shadow: none !important;
-}
-
-.leaflet-tile-container img {
-  image-rendering: -webkit-optimize-contrast;
+  margin: 0 !important;
+  padding: 0 !important;
+  width: calc(100% + 1px) !important;
+  height: calc(100% + 1px) !important;
 }
 @tailwind base;
 @tailwind components;
