@@ -65,6 +65,7 @@ export default function MapPreview() {
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
   const [mode, setMode] = useState<"satellite" | "map">("satellite");
+  const [active, setActive] = useState(false);
 
   useEffect(() => {
     fetch(func2url["get-reports"])
@@ -83,7 +84,12 @@ export default function MapPreview() {
     const map = L.map(containerRef.current, {
       center: [44.895, 37.316],
       zoom: 14,
-      scrollWheelZoom: true,
+      scrollWheelZoom: false,
+    });
+
+    map.once("click", () => {
+      map.scrollWheelZoom.enable();
+      setActive(true);
     });
 
     const tile = L.tileLayer(TILES.satellite.url, {
@@ -151,6 +157,16 @@ export default function MapPreview() {
         </div>
       )}
       <div ref={containerRef} style={{ height: "100%", width: "100%" }} />
+
+      {/* Подсказка «кликни для управления» */}
+      {!active && !loading && (
+        <div className="absolute inset-0 z-[999] flex items-center justify-center pointer-events-none">
+          <div className="bg-black/60 backdrop-blur-sm text-white text-sm px-5 py-3 rounded-sm flex items-center gap-2">
+            <Icon name="MousePointer2" size={16} />
+            Нажмите на карту для управления
+          </div>
+        </div>
+      )}
 
       {/* Заголовок поверх карты */}
       <div className="absolute bottom-10 left-6 z-[1000] pointer-events-none">
