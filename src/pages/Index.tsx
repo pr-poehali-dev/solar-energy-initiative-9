@@ -21,8 +21,6 @@ const Index = () => {
       {/* Featured (белый) → MapPreview */}
       <WaveDivider fromColor="#ffffff" toColor="#e5e7eb" />
       <MapPreview />
-      {/* MapPreview → Promo (тёмный) */}
-      <WaveDivider fromColor="#e5e7eb" toColor="#000000" flip />
       <Promo />
       <Footer />
       <ReportDrawer open={drawerOpen} onOpenChange={setDrawerOpen} />
