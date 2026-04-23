@@ -1,0 +1,21 @@
+{
+  "tests": [
+    {
+      "name": "Get public places list",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": {"places": [], "total": 0},
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Reject POST without admin token",
+      "method": "POST",
+      "path": "/",
+      "body": {"name": "Test"},
+      "expectedStatus": 403,
+      "expectedBody": {"error": "Доступ запрещён"},
+      "bodyMatcher": "partial"
+    }
+  ]
+}

@@ -63,6 +63,14 @@ export default function Header({ className }: HeaderProps) {
             </a>
           ))}
           <Link
+            to="/places"
+            onClick={close}
+            className="flex items-center gap-2 px-6 py-4 text-white uppercase text-sm tracking-wide hover:bg-white/10 transition-colors border-b border-white/10"
+          >
+            <Icon name="Star" size={14} />
+            Карта доступности
+          </Link>
+          <Link
             to="/stories"
             onClick={close}
             className="flex items-center gap-2 px-6 py-4 text-white uppercase text-sm tracking-wide hover:bg-white/10 transition-colors border-b border-white/10"

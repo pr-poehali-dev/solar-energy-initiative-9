@@ -4,6 +4,7 @@ import func2url from "../../backend/func2url.json";
 import AdminLogin from "@/components/admin/AdminLogin";
 import AdminReportsTab, { Report } from "@/components/admin/AdminReportsTab";
 import AdminVideosTab, { VideoItem, VideoForm } from "@/components/admin/AdminVideosTab";
+import AdminPlacesTab from "@/components/admin/AdminPlacesTab";
 
 const ACCESSIBILITY_ORDER: Record<string, number> = {
   blocked: 0,
@@ -24,9 +25,11 @@ export default function Admin() {
   const [rejectReason, setRejectReason] = useState("");
   const [rejectTarget, setRejectTarget] = useState<number | null>(null);
 
+  // Tab: "reports" | "videos" | "places"
+  const [activeTab, setActiveTab] = useState<"reports" | "videos" | "places">("reports");
+
   // Videos
   const [videos, setVideos] = useState<VideoItem[]>([]);
-  const [videoTab, setVideoTab] = useState(false);
   const [videoForm, setVideoForm] = useState<VideoForm>({ id: 0, title: "", description: "", video_url: "", published: true });
   const [videoSaving, setVideoSaving] = useState(false);
   const [editingVideoId, setEditingVideoId] = useState<number | null>(null);
@@ -50,7 +53,7 @@ export default function Admin() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoginError("");
-    const res = await fetch(func2url["moderate-report"], {
+    const res = await fetch(func2url["get-reports"], {
       method: "POST",
       headers: { "Content-Type": "application/json", "X-Admin-Token": password },
       body: JSON.stringify({ id: 0, status: "new" }),
@@ -65,7 +68,7 @@ export default function Admin() {
 
   const moderate = async (id: number, status: "approved" | "rejected", reason = "") => {
     setActionId(id);
-    await fetch(func2url["moderate-report"], {
+    await fetch(func2url["get-reports"], {
       method: "POST",
       headers: { "Content-Type": "application/json", "X-Admin-Token": token },
       body: JSON.stringify({ id, status, reject_reason: reason }),
@@ -117,10 +120,10 @@ export default function Admin() {
   };
 
   const toggleProblem = async (id: number, value: boolean) => {
-    await fetch(func2url["moderate-report"], {
+    await fetch(func2url["get-reports"], {
       method: "POST",
       headers: { "Content-Type": "application/json", "X-Admin-Token": token },
-      body: JSON.stringify({ id, status: "new", is_problem: value }),
+      body: JSON.stringify({ id, is_problem: value }),
     });
     await fetchReports(token);
   };
@@ -174,24 +177,31 @@ export default function Admin() {
       <div className="max-w-5xl mx-auto px-6 py-10">
 
         {/* Tab switcher */}
-        <div className="flex gap-2 mb-8">
+        <div className="flex gap-2 mb-8 flex-wrap">
           <button
-            onClick={() => setVideoTab(false)}
-            className={`px-4 py-2 text-sm font-medium transition-colors ${!videoTab ? "bg-neutral-900 text-white" : "bg-white border border-neutral-200 text-neutral-600 hover:border-neutral-400"}`}
+            onClick={() => setActiveTab("reports")}
+            className={`px-4 py-2 text-sm font-medium transition-colors ${activeTab === "reports" ? "bg-neutral-900 text-white" : "bg-white border border-neutral-200 text-neutral-600 hover:border-neutral-400"}`}
           >
             <Icon name="ClipboardList" size={14} className="inline mr-1.5" />
             Заявки
           </button>
           <button
-            onClick={() => setVideoTab(true)}
-            className={`px-4 py-2 text-sm font-medium transition-colors ${videoTab ? "bg-neutral-900 text-white" : "bg-white border border-neutral-200 text-neutral-600 hover:border-neutral-400"}`}
+            onClick={() => setActiveTab("places")}
+            className={`px-4 py-2 text-sm font-medium transition-colors ${activeTab === "places" ? "bg-neutral-900 text-white" : "bg-white border border-neutral-200 text-neutral-600 hover:border-neutral-400"}`}
+          >
+            <Icon name="MapPin" size={14} className="inline mr-1.5" />
+            Карта доступности
+          </button>
+          <button
+            onClick={() => setActiveTab("videos")}
+            className={`px-4 py-2 text-sm font-medium transition-colors ${activeTab === "videos" ? "bg-neutral-900 text-white" : "bg-white border border-neutral-200 text-neutral-600 hover:border-neutral-400"}`}
           >
             <Icon name="Video" size={14} className="inline mr-1.5" />
-            Вся правда · {videos.length}
+            Интервью · {videos.length}
           </button>
         </div>
 
-        {videoTab && (
+        {activeTab === "videos" && (
           <AdminVideosTab
             videos={videos}
             videoForm={videoForm}
@@ -205,7 +215,11 @@ export default function Admin() {
           />
         )}
 
-        {!videoTab && (
+        {activeTab === "places" && (
+          <AdminPlacesTab token={token} />
+        )}
+
+        {activeTab === "reports" && (
           <AdminReportsTab
             filtered={filtered}
             loading={loading}
