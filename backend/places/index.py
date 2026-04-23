@@ -26,70 +26,75 @@ def check_admin(event):
     return (p1 and token == p1) or (p2 and token == p2)
 
 
-def handle_support(event, method, conn):
-    cur = conn.cursor()
+def handle_support(event, method):
+    conn = psycopg2.connect(os.environ["DATABASE_URL"])
+    try:
+        cur = conn.cursor()
+        cur.execute(f"SET search_path TO {SCHEMA}")
 
-    if method == "POST":
-        body = json.loads(event.get("body") or "{}")
-        name = body.get("name", "").strip()
-        email = body.get("email", "").strip()
-        message = body.get("message", "").strip()
-        if not name or not message:
-            return {"statusCode": 400, "headers": CORS_HEADERS,
-                    "body": json.dumps({"error": "Имя и сообщение обязательны"})}
-        cur.execute(
-            f"INSERT INTO {SCHEMA}.support_tickets (name, email, message) VALUES (%s, %s, %s) RETURNING id",
-            (name, email or None, message),
-        )
-        new_id = cur.fetchone()[0]
-        conn.commit()
-        return {"statusCode": 201, "headers": CORS_HEADERS,
-                "body": json.dumps({"success": True, "id": new_id})}
+        if method == "POST":
+            body = json.loads(event.get("body") or "{}")
+            name = body.get("name", "").strip()
+            email = body.get("email", "").strip()
+            message = body.get("message", "").strip()
+            if not name or not message:
+                return {"statusCode": 400, "headers": CORS_HEADERS,
+                        "body": json.dumps({"error": "Имя и сообщение обязательны"})}
+            cur.execute(
+                "INSERT INTO support_tickets (name, email, message) VALUES (%s, %s, %s) RETURNING id",
+                (name, email or None, message),
+            )
+            new_id = cur.fetchone()[0]
+            conn.commit()
+            return {"statusCode": 201, "headers": CORS_HEADERS,
+                    "body": json.dumps({"success": True, "id": new_id})}
 
-    if method == "GET":
-        if not check_admin(event):
-            return {"statusCode": 403, "headers": CORS_HEADERS,
-                    "body": json.dumps({"error": "Доступ запрещён"})}
-        cur.execute(
-            f"SELECT id, name, email, message, status, reply, replied_at, created_at FROM {SCHEMA}.support_tickets ORDER BY created_at DESC"
-        )
-        rows = cur.fetchall()
-        tickets = [
-            {
-                "id": r[0], "name": r[1], "email": r[2], "message": r[3],
-                "status": r[4], "reply": r[5],
-                "replied_at": r[6].isoformat() if r[6] else None,
-                "created_at": r[7].isoformat() if r[7] else None,
-            }
-            for r in rows
-        ]
-        return {"statusCode": 200, "headers": CORS_HEADERS,
-                "body": json.dumps({"tickets": tickets, "total": len(tickets)})}
+        if method == "GET":
+            if not check_admin(event):
+                return {"statusCode": 403, "headers": CORS_HEADERS,
+                        "body": json.dumps({"error": "Доступ запрещён"})}
+            cur.execute(
+                "SELECT id, name, email, message, status, reply, replied_at, created_at FROM support_tickets ORDER BY created_at DESC"
+            )
+            rows = cur.fetchall()
+            tickets = [
+                {
+                    "id": r[0], "name": r[1], "email": r[2], "message": r[3],
+                    "status": r[4], "reply": r[5],
+                    "replied_at": r[6].isoformat() if r[6] else None,
+                    "created_at": r[7].isoformat() if r[7] else None,
+                }
+                for r in rows
+            ]
+            return {"statusCode": 200, "headers": CORS_HEADERS,
+                    "body": json.dumps({"tickets": tickets, "total": len(tickets)})}
 
-    if method == "PUT":
-        if not check_admin(event):
-            return {"statusCode": 403, "headers": CORS_HEADERS,
-                    "body": json.dumps({"error": "Доступ запрещён"})}
-        body = json.loads(event.get("body") or "{}")
-        ticket_id = body.get("id")
-        reply = body.get("reply", "").strip()
-        if not ticket_id or not reply:
-            return {"statusCode": 400, "headers": CORS_HEADERS,
-                    "body": json.dumps({"error": "id и reply обязательны"})}
-        cur.execute(
-            f"UPDATE {SCHEMA}.support_tickets SET reply=%s, status='replied', replied_at=%s WHERE id=%s RETURNING id",
-            (reply, datetime.now(timezone.utc), ticket_id),
-        )
-        row = cur.fetchone()
-        conn.commit()
-        if not row:
-            return {"statusCode": 404, "headers": CORS_HEADERS,
-                    "body": json.dumps({"error": "Обращение не найдено"})}
-        return {"statusCode": 200, "headers": CORS_HEADERS,
-                "body": json.dumps({"success": True})}
+        if method == "PUT":
+            if not check_admin(event):
+                return {"statusCode": 403, "headers": CORS_HEADERS,
+                        "body": json.dumps({"error": "Доступ запрещён"})}
+            body = json.loads(event.get("body") or "{}")
+            ticket_id = body.get("id")
+            reply = body.get("reply", "").strip()
+            if not ticket_id or not reply:
+                return {"statusCode": 400, "headers": CORS_HEADERS,
+                        "body": json.dumps({"error": "id и reply обязательны"})}
+            cur.execute(
+                "UPDATE support_tickets SET reply=%s, status='replied', replied_at=%s WHERE id=%s RETURNING id",
+                (reply, datetime.now(timezone.utc), ticket_id),
+            )
+            row = cur.fetchone()
+            conn.commit()
+            if not row:
+                return {"statusCode": 404, "headers": CORS_HEADERS,
+                        "body": json.dumps({"error": "Обращение не найдено"})}
+            return {"statusCode": 200, "headers": CORS_HEADERS,
+                    "body": json.dumps({"success": True})}
 
-    return {"statusCode": 405, "headers": CORS_HEADERS,
-            "body": json.dumps({"error": "Method not allowed"})}
+        return {"statusCode": 405, "headers": CORS_HEADERS,
+                "body": json.dumps({"error": "Method not allowed"})}
+    finally:
+        conn.close()
 
 
 def handler(event: dict, context) -> dict:
@@ -103,7 +108,7 @@ def handler(event: dict, context) -> dict:
     try:
         # Роутинг для поддержки
         if params.get("type") == "support":
-            return handle_support(event, method, conn)
+            return handle_support(event, method)
 
         cur = conn.cursor()
 
