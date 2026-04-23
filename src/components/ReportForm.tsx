@@ -199,15 +199,15 @@ export default function ReportForm({ onSuccess }: ReportFormProps) {
 
   return (
     <div className="px-6 py-8">
-        <h3 className="uppercase text-sm tracking-widest text-neutral-500 mb-4">Форма сбора данных</h3>
-        <h2 className="text-2xl font-bold text-neutral-900 mb-2 leading-tight">
+        <h3 className="uppercase text-sm tracking-widest text-white/60 mb-4">Форма сбора данных</h3>
+        <h2 className="text-2xl font-bold text-white mb-2 leading-tight">
           Сообщите о месте
         </h2>
-        <p className="text-neutral-600 mb-4">
+        <p className="text-white/70 mb-4">
           Поля отмеченные * обязательны. Данные пройдут проверку перед публикацией на карте.
         </p>
         {draft && (submitterName || comment || accessibility) && (
-          <div className="flex items-center gap-2 text-xs text-neutral-500 bg-neutral-100 border border-neutral-200 px-4 py-2 mb-8">
+          <div className="flex items-center gap-2 text-xs text-white/60 bg-white/10 border border-white/20 px-4 py-2 mb-8 rounded-lg">
             <Icon name="RotateCcw" size={13} />
             Черновик восстановлен — продолжайте с того места, где остановились
           </div>
@@ -240,7 +240,7 @@ export default function ReportForm({ onSuccess }: ReportFormProps) {
           />
 
           {error && (
-            <div className="flex items-center gap-2 p-4 bg-red-50 border border-red-200 text-red-700 text-sm">
+            <div className="flex items-center gap-2 p-4 bg-red-500/20 border border-red-400/40 text-red-200 text-sm rounded-2xl">
               <Icon name="AlertCircle" size={16} />
               {error}
             </div>
@@ -249,7 +249,7 @@ export default function ReportForm({ onSuccess }: ReportFormProps) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-black text-white py-4 text-sm uppercase tracking-widest font-semibold hover:bg-neutral-800 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-white text-black py-4 text-sm uppercase tracking-widest font-semibold hover:bg-white/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed rounded-2xl"
           >
             {loading ? <Icon name="Loader2" size={16} className="animate-spin" /> : <Icon name="Send" size={16} />}
             {loading ? (photo ? "Загружаем фото и отправляем..." : "Отправляем...") : "Отправить на проверку"}

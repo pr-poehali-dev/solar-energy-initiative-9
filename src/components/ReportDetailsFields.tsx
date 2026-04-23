@@ -60,8 +60,8 @@ export default function ReportDetailsFields({
   return (
     <>
       {/* Submitter name */}
-      <div className="bg-white border border-neutral-200 p-6">
-        <label className="block text-sm font-semibold uppercase tracking-wide text-neutral-700 mb-3">
+      <div className="bg-white/10 border border-white/20 p-6 rounded-2xl">
+        <label className="block text-sm font-semibold uppercase tracking-wide text-white/80 mb-3">
           Ваше имя *
         </label>
         <input
@@ -70,13 +70,13 @@ export default function ReportDetailsFields({
           onChange={(e) => onSubmitterNameChange(e.target.value)}
           required
           placeholder="Как к вам обращаться?"
-          className="w-full border border-neutral-200 p-3 text-sm text-neutral-800 placeholder-neutral-400 focus:outline-none focus:border-neutral-400"
+          className="w-full border border-white/25 bg-white/10 p-3 text-sm text-white placeholder-white/40 focus:outline-none focus:border-white/60 rounded-xl"
         />
       </div>
 
       {/* Photo */}
-      <div className="bg-white border border-neutral-200 p-6">
-        <label className="block text-sm font-semibold uppercase tracking-wide text-neutral-700 mb-3">
+      <div className="bg-white/10 border border-white/20 p-6 rounded-2xl">
+        <label className="block text-sm font-semibold uppercase tracking-wide text-white/80 mb-3">
           Фото препятствия или маршрута *
         </label>
         <input
@@ -106,31 +106,31 @@ export default function ReportDetailsFields({
         ) : (
           <label
             htmlFor="photo-input"
-            className="flex items-center justify-center gap-3 p-8 bg-neutral-50 border border-dashed border-neutral-300 cursor-pointer hover:bg-neutral-100 transition-colors"
+            className="flex items-center justify-center gap-3 p-8 bg-white/10 border border-dashed border-white/30 cursor-pointer hover:bg-white/20 transition-colors"
           >
-            <Icon name="Camera" size={24} className="text-neutral-400" />
+            <Icon name="Camera" size={24} className="text-white/40" />
             <div>
-              <p className="text-sm font-medium text-neutral-800">Сделать фото или выбрать из галереи</p>
-              <p className="text-xs text-neutral-500 mt-0.5">На снимке будут видны координаты и время</p>
+              <p className="text-sm font-medium text-white">Сделать фото или выбрать из галереи</p>
+              <p className="text-xs text-white/60 mt-0.5">На снимке будут видны координаты и время</p>
             </div>
           </label>
         )}
       </div>
 
       {/* Accessibility */}
-      <div className="bg-white border border-neutral-200 p-6">
-        <label className="block text-sm font-semibold uppercase tracking-wide text-neutral-700 mb-1">
+      <div className="bg-white/10 border border-white/20 p-6 rounded-2xl">
+        <label className="block text-sm font-semibold uppercase tracking-wide text-white/80 mb-1">
           Доступность *
         </label>
-        <p className="text-xs text-neutral-500 mb-3">Насколько это место проходимо для колясочника</p>
+        <p className="text-xs text-white/60 mb-3">Насколько это место проходимо для колясочника</p>
         <div className="space-y-2">
           {accessibilityTypes.map((t) => (
             <label
               key={t.value}
               className={`flex items-center gap-3 p-3 cursor-pointer border transition-colors ${
                 accessibility === t.value
-                  ? "border-neutral-900 bg-neutral-50"
-                  : "border-transparent hover:border-neutral-200"
+                  ? "border-white bg-white/15"
+                  : "border-transparent hover:border-white/30"
               }`}
             >
               <input
@@ -143,8 +143,8 @@ export default function ReportDetailsFields({
                 required
               />
               <div>
-                <span className="text-sm font-medium text-neutral-800">{t.label}</span>
-                <span className="text-xs text-neutral-500 ml-2">{t.description}</span>
+                <span className="text-sm font-medium text-white">{t.label}</span>
+                <span className="text-xs text-white/60 ml-2">{t.description}</span>
               </div>
             </label>
           ))}
@@ -152,19 +152,19 @@ export default function ReportDetailsFields({
       </div>
 
       {/* Place type */}
-      <div className="bg-white border border-neutral-200 p-6">
-        <label className="block text-sm font-semibold uppercase tracking-wide text-neutral-700 mb-1">
+      <div className="bg-white/10 border border-white/20 p-6 rounded-2xl">
+        <label className="block text-sm font-semibold uppercase tracking-wide text-white/80 mb-1">
           Тип места *
         </label>
-        <p className="text-xs text-neutral-500 mb-3">Что это за место</p>
+        <p className="text-xs text-white/60 mb-3">Что это за место</p>
         <div className="space-y-2">
           {placeTypes.map((t) => (
             <label
               key={t.value}
               className={`flex items-center gap-3 p-3 cursor-pointer border transition-colors ${
                 placeType === t.value
-                  ? "border-neutral-900 bg-neutral-50"
-                  : "border-transparent hover:border-neutral-200"
+                  ? "border-white bg-white/15"
+                  : "border-transparent hover:border-white/30"
               }`}
             >
               <input
@@ -177,8 +177,8 @@ export default function ReportDetailsFields({
                 required
               />
               <div>
-                <span className="text-sm font-medium text-neutral-800">{t.label}</span>
-                <span className="text-xs text-neutral-500 ml-2">{t.description}</span>
+                <span className="text-sm font-medium text-white">{t.label}</span>
+                <span className="text-xs text-white/60 ml-2">{t.description}</span>
               </div>
             </label>
           ))}
@@ -186,16 +186,16 @@ export default function ReportDetailsFields({
       </div>
 
       {/* Features */}
-      <div className="bg-white border border-neutral-200 p-6">
-        <label className="block text-sm font-semibold uppercase tracking-wide text-neutral-700 mb-3">
+      <div className="bg-white/10 border border-white/20 p-6 rounded-2xl">
+        <label className="block text-sm font-semibold uppercase tracking-wide text-white/80 mb-3">
           Особенности маршрута{" "}
-          <span className="text-neutral-400 font-normal normal-case">(можно выбрать несколько)</span>
+          <span className="text-white/40 font-normal normal-case">(можно выбрать несколько)</span>
         </label>
         <div className="space-y-2">
           {featuresList.map((f) => (
             <label
               key={f}
-              className="flex items-center gap-3 p-3 cursor-pointer hover:bg-neutral-50 transition-colors"
+              className="flex items-center gap-3 p-3 cursor-pointer hover:bg-white/10 transition-colors"
             >
               <input
                 type="checkbox"
@@ -203,26 +203,26 @@ export default function ReportDetailsFields({
                 onChange={() => onToggleFeature(f)}
                 className="accent-black w-4 h-4"
               />
-              <span className="text-sm text-neutral-800">{f}</span>
+              <span className="text-sm text-white">{f}</span>
             </label>
           ))}
         </div>
       </div>
 
       {/* Comment */}
-      <div className="bg-white border border-neutral-200 p-6">
-        <label className="block text-sm font-semibold uppercase tracking-wide text-neutral-700 mb-1">
+      <div className="bg-white/10 border border-white/20 p-6 rounded-2xl">
+        <label className="block text-sm font-semibold uppercase tracking-wide text-white/80 mb-1">
           Личный комментарий очевидца
         </label>
-        <p className="text-xs text-neutral-500 mb-3">
+        <p className="text-xs text-white/60 mb-3">
           Напишите подробности: например, с какой стороны есть съезд или где конкретно яма
         </p>
         <textarea
           value={comment}
           onChange={(e) => onCommentChange(e.target.value)}
           rows={4}
-          placeholder="Например: с северной стороны есть пологий съезд, но он узкий..."
-          className="w-full border border-neutral-200 p-3 text-sm text-neutral-800 placeholder-neutral-400 focus:outline-none focus:border-neutral-400 resize-none"
+          placeholder="Необязательно, но очень помогает..."
+          className="w-full border border-white/25 bg-white/10 p-3 text-sm text-white placeholder-white/40 focus:outline-none focus:border-white/60 resize-none rounded-xl"
         />
       </div>
     </>

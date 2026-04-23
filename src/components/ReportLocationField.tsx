@@ -22,8 +22,8 @@ export default function ReportLocationField({
   onCoordsChange,
 }: ReportLocationFieldProps) {
   return (
-    <div className="bg-white border border-neutral-200 p-6">
-      <label className="block text-sm font-semibold uppercase tracking-wide text-neutral-700 mb-3">
+    <div className="bg-white/10 border border-white/20 p-6 rounded-2xl">
+      <label className="block text-sm font-semibold uppercase tracking-wide text-white/80 mb-3">
         Местоположение *
       </label>
       <button
@@ -32,10 +32,10 @@ export default function ReportLocationField({
         disabled={gpsStatus === "loading"}
         className={`w-full flex items-center gap-3 p-4 border transition-colors text-left mb-3 ${
           gpsStatus === "denied"
-            ? "bg-orange-50 border-orange-200 cursor-default"
+            ? "bg-orange-500/20 border-orange-400/40 cursor-default"
             : gpsStatus === "found"
-            ? "bg-green-50 border-green-200 hover:bg-green-100"
-            : "bg-neutral-50 border-dashed border-neutral-300 hover:bg-neutral-100"
+            ? "bg-green-500/20 border-green-400/40 hover:bg-green-500/30"
+            : "bg-white/10 border-dashed border-white/30 hover:bg-white/20"
         }`}
       >
         <Icon
@@ -56,15 +56,15 @@ export default function ReportLocationField({
           }`}
         />
         <div className="flex-1">
-          {gpsStatus === "idle" && <p className="text-sm font-medium text-neutral-800">Определить моё местоположение</p>}
-          {gpsStatus === "loading" && <p className="text-sm font-medium text-neutral-800">Определяем координаты...</p>}
+          {gpsStatus === "idle" && <p className="text-sm font-medium text-white">Определить моё местоположение</p>}
+          {gpsStatus === "loading" && <p className="text-sm font-medium text-white">Определяем координаты...</p>}
           {gpsStatus === "found" && coords && (
-            <p className="text-sm font-medium text-green-700">✓ {coords.lat.toFixed(5)}, {coords.lng.toFixed(5)}</p>
+            <p className="text-sm font-medium text-green-300">✓ {coords.lat.toFixed(5)}, {coords.lng.toFixed(5)}</p>
           )}
           {gpsStatus === "error" && <p className="text-sm font-medium text-red-600">Сигнал GPS слабый. Попробуйте ещё раз или поставьте точку на карте.</p>}
           {gpsStatus === "denied" && <p className="text-sm font-medium text-orange-700">Доступ к геолокации заблокирован</p>}
           {gpsStatus !== "denied" && (
-            <p className="text-xs text-neutral-500 mt-0.5">Нажмите — браузер запросит разрешение · или поставьте точку на карте</p>
+            <p className="text-xs text-white/50 mt-0.5">Нажмите — браузер запросит разрешение · или поставьте точку на карте</p>
           )}
         </div>
       </button>
@@ -146,7 +146,7 @@ export default function ReportLocationField({
         />
       </Suspense>
       {!coords && (
-        <p className="text-xs text-neutral-400 mt-2 text-center">Нажмите на карту, чтобы поставить точку вручную</p>
+        <p className="text-xs text-white/40 mt-2 text-center">Нажмите на карту, чтобы поставить точку вручную</p>
       )}
     </div>
   );

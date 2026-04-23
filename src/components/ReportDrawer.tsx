@@ -8,6 +8,14 @@ interface ReportDrawerProps {
   onOpenChange: (v: boolean) => void;
 }
 
+const glass: React.CSSProperties = {
+  background: "rgba(255, 255, 255, 0.12)",
+  backdropFilter: "blur(32px) saturate(200%) brightness(1.1)",
+  WebkitBackdropFilter: "blur(32px) saturate(200%) brightness(1.1)",
+  border: "1px solid rgba(255,255,255,0.25)",
+  boxShadow: "0 8px 64px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.3)",
+};
+
 export default function ReportDrawer({ open, onOpenChange }: ReportDrawerProps) {
   useEffect(() => {
     if (open) {
@@ -21,35 +29,33 @@ export default function ReportDrawer({ open, onOpenChange }: ReportDrawerProps) 
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="drawer-overlay fixed inset-0 bg-black/50 z-40 backdrop-blur-sm" />
-        <Dialog.Content className="drawer-panel fixed right-0 top-0 bottom-0 z-50 w-full max-w-xl overflow-y-auto shadow-2xl focus:outline-none flex flex-col bg-white">
+        <Dialog.Overlay className="drawer-overlay fixed inset-0 bg-black/40 z-40" />
 
-          {/* Шапка — стекло */}
-          <div className="sticky top-0 z-10 px-6 py-5 flex items-center justify-between shrink-0 border-b border-white/20"
-            style={{
-              background: "rgba(255,255,255,0.15)",
-              backdropFilter: "blur(20px) saturate(180%)",
-              WebkitBackdropFilter: "blur(20px) saturate(180%)",
-            }}
+        {/* Обёртка с отступами — стекло не прилипает к краям */}
+        <div className="fixed inset-y-4 right-4 z-50 w-full max-w-lg drawer-panel flex flex-col" style={{ borderRadius: "24px", overflow: "hidden", ...glass }}>
+
+          {/* Шапка */}
+          <div className="px-6 py-5 flex items-center justify-between shrink-0"
+            style={{ borderBottom: "1px solid rgba(255,255,255,0.15)" }}
           >
             <div className="flex items-center gap-3">
-              <Icon name="MapPin" size={16} className="text-neutral-700" />
-              <Dialog.Title className="text-sm uppercase tracking-widest font-bold text-neutral-900">
+              <Icon name="MapPin" size={16} className="text-white/80" />
+              <Dialog.Title className="text-sm uppercase tracking-widest font-bold text-white">
                 Отметить место
               </Dialog.Title>
             </div>
             <Dialog.Close asChild>
-              <button className="text-neutral-500 hover:text-neutral-900 transition-colors p-1 rounded-sm hover:bg-black/10">
-                <Icon name="X" size={20} />
+              <button className="text-white/60 hover:text-white transition-colors p-1.5 rounded-full hover:bg-white/15">
+                <Icon name="X" size={18} />
               </button>
             </Dialog.Close>
           </div>
 
-          {/* Форма */}
-          <div className="flex-1">
+          {/* Форма — скролл внутри панели */}
+          <div className="flex-1 overflow-y-auto">
             <ReportForm onSuccess={() => onOpenChange(false)} />
           </div>
-        </Dialog.Content>
+        </div>
       </Dialog.Portal>
     </Dialog.Root>
   );
