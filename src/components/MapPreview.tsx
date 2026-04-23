@@ -87,10 +87,27 @@ export default function MapPreview() {
       scrollWheelZoom: false,
     });
 
-    map.once("click", () => {
+    map.on("click", () => {
       map.scrollWheelZoom.enable();
       setActive(true);
     });
+
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        map.scrollWheelZoom.disable();
+        setActive(false);
+      }
+    };
+    document.addEventListener("click", handleOutsideClick);
+
+    mapRef.current = map;
+
+    return () => {
+      document.removeEventListener("click", handleOutsideClick);
+      map.remove();
+      mapRef.current = null;
+      tileRef.current = null;
+    };
 
     const tile = L.tileLayer(TILES.satellite.url, {
       attribution: TILES.satellite.attribution,
@@ -135,13 +152,6 @@ export default function MapPreview() {
       `);
     });
 
-    mapRef.current = map;
-
-    return () => {
-      map.remove();
-      mapRef.current = null;
-      tileRef.current = null;
-    };
   }, [loading, reports]);
 
   useEffect(() => {
