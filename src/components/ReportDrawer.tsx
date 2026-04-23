@@ -31,9 +31,10 @@ export default function ReportDrawer({ open, onOpenChange }: ReportDrawerProps) 
       <Dialog.Portal>
         <Dialog.Overlay className="drawer-overlay fixed inset-0 bg-black/40 z-40" />
 
-        {/* Обёртка с отступами — стекло не прилипает к краям */}
-        <div className="fixed inset-y-4 right-4 z-50 w-full max-w-lg drawer-panel flex flex-col" style={{ borderRadius: "24px", overflow: "hidden", ...glass }}>
-
+        <Dialog.Content
+          className="drawer-panel fixed inset-y-4 right-4 z-50 w-full max-w-lg flex flex-col focus:outline-none"
+          style={{ borderRadius: "24px", overflow: "hidden", ...glass }}
+        >
           {/* Шапка */}
           <div className="px-6 py-5 flex items-center justify-between shrink-0"
             style={{ borderBottom: "1px solid rgba(255,255,255,0.15)" }}
@@ -55,7 +56,7 @@ export default function ReportDrawer({ open, onOpenChange }: ReportDrawerProps) 
           <div className="flex-1 overflow-y-auto">
             <ReportForm onSuccess={() => onOpenChange(false)} />
           </div>
-        </div>
+        </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>
   );
