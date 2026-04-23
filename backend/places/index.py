@@ -18,8 +18,9 @@ CORS_HEADERS = {
 
 def check_admin(event):
     token = event.get("headers", {}).get("X-Admin-Token", "")
-    expected = os.environ.get("ADMIN_PASSWORD", "")
-    return expected and token == expected
+    p1 = os.environ.get("ADMIN_PASSWORD", "")
+    p2 = os.environ.get("ADMIN_PASSWORD_2", "")
+    return (p1 and token == p1) or (p2 and token == p2)
 
 
 def handler(event: dict, context) -> dict:

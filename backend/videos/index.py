@@ -19,7 +19,9 @@ CORS_HEADERS = {
 def check_auth(event: dict) -> bool:
     headers = {k.lower(): v for k, v in (event.get("headers") or {}).items()}
     token = headers.get("x-admin-token", "")
-    return token == os.environ.get("ADMIN_PASSWORD", "")
+    p1 = os.environ.get("ADMIN_PASSWORD", "")
+    p2 = os.environ.get("ADMIN_PASSWORD_2", "")
+    return (p1 and token == p1) or (p2 and token == p2)
 
 
 def handler(event: dict, context) -> dict:

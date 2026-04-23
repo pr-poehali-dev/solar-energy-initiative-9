@@ -27,7 +27,9 @@ def handler(event: dict, context) -> dict:
     if method == "POST":
         admin_token = event.get("headers", {}).get("X-Admin-Token", "")
         expected = os.environ.get("ADMIN_PASSWORD", "")
-        if not expected or admin_token != expected:
+        expected2 = os.environ.get("ADMIN_PASSWORD_2", "")
+        valid = (expected and admin_token == expected) or (expected2 and admin_token == expected2)
+        if not valid:
             return {"statusCode": 403, "headers": CORS_HEADERS,
                     "body": json.dumps({"error": "Доступ запрещён"})}
 
