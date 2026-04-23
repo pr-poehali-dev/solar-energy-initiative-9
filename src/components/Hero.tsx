@@ -2,7 +2,7 @@ import { useScroll, useTransform, motion } from "framer-motion";
 import { useRef, useEffect, useState } from "react";
 import func2url from "../../backend/func2url.json";
 
-export default function Hero() {
+export default function Hero({ onReportClick }: { onReportClick?: () => void }) {
   const [count, setCount] = useState<number | null>(null);
   const [displayed, setDisplayed] = useState(0);
 
@@ -79,12 +79,12 @@ export default function Hero() {
         )}
 
         <div>
-          <a
-            href="#report"
+          <button
+            onClick={onReportClick}
             className="inline-block bg-white text-black text-sm uppercase tracking-widest px-8 py-4 font-semibold hover:bg-neutral-200 transition-colors duration-300"
           >
             Отметить место
-          </a>
+          </button>
         </div>
       </div>
     </div>

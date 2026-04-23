@@ -13,7 +13,7 @@ const Index = () => {
   return (
     <main className="min-h-screen">
       <div className="relative">
-        <Hero />
+        <Hero onReportClick={() => setDrawerOpen(true)} />
         <Header onReportClick={() => setDrawerOpen(true)} />
       </div>
       <Featured />
