@@ -22,7 +22,11 @@ function clearDraft() {
   try { localStorage.removeItem(DRAFT_KEY); } catch (e) { void e; }
 }
 
-export default function ReportForm() {
+interface ReportFormProps {
+  onSuccess?: () => void;
+}
+
+export default function ReportForm({ onSuccess }: ReportFormProps) {
   const draft = loadDraft();
 
   const [accessibility, setAccessibility] = useState(draft?.accessibility ?? "");
@@ -166,6 +170,7 @@ export default function ReportForm() {
       if (!res.ok) throw new Error("Ошибка при отправке");
       clearDraft();
       setSubmitted(true);
+      onSuccess?.();
     } catch {
       setError("Не удалось отправить заявку. Попробуйте ещё раз.");
     } finally {
@@ -193,10 +198,9 @@ export default function ReportForm() {
   }
 
   return (
-    <div id="report" className="min-h-screen bg-neutral-50 px-6 py-24">
-      <div className="max-w-2xl mx-auto">
+    <div className="px-6 py-8">
         <h3 className="uppercase text-sm tracking-widest text-neutral-500 mb-4">Форма сбора данных</h3>
-        <h2 className="text-3xl lg:text-4xl font-bold text-neutral-900 mb-2 leading-tight">
+        <h2 className="text-2xl font-bold text-neutral-900 mb-2 leading-tight">
           Сообщите о месте
         </h2>
         <p className="text-neutral-600 mb-4">
@@ -251,7 +255,6 @@ export default function ReportForm() {
             {loading ? (photo ? "Загружаем фото и отправляем..." : "Отправляем...") : "Отправить на проверку"}
           </button>
         </form>
-      </div>
     </div>
   );
 }

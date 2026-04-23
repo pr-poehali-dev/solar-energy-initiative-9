@@ -1,23 +1,26 @@
+import { useState } from "react";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import Featured from "@/components/Featured";
 import Promo from "@/components/Promo";
-import ReportForm from "@/components/ReportForm";
 import MapPreview from "@/components/MapPreview";
+import ReportDrawer from "@/components/ReportDrawer";
 import Footer from "@/components/Footer";
 
 const Index = () => {
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
   return (
     <main className="min-h-screen">
       <div className="relative">
         <Hero />
-        <Header />
+        <Header onReportClick={() => setDrawerOpen(true)} />
       </div>
       <MapPreview />
       <Featured />
       <Promo />
-      <ReportForm />
       <Footer />
+      <ReportDrawer open={drawerOpen} onOpenChange={setDrawerOpen} />
     </main>
   );
 };

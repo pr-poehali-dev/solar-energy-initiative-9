@@ -4,9 +4,10 @@ import Icon from "@/components/ui/icon";
 
 interface HeaderProps {
   className?: string;
+  onReportClick?: () => void;
 }
 
-export default function Header({ className }: HeaderProps) {
+export default function Header({ className, onReportClick }: HeaderProps) {
   const [open, setOpen] = useState(false);
 
   const close = () => setOpen(false);
@@ -21,7 +22,7 @@ export default function Header({ className }: HeaderProps) {
         {/* Центр — SOS кнопка строго по центру */}
         <a
           href="tel:112"
-          className="flex items-center gap-2 bg-red-600 hover:bg-red-700 transition-colors text-white text-xs font-bold uppercase tracking-wide px-4 py-2.5 rounded-sm"
+          className="flex items-center gap-2 bg-red-600 hover:bg-red-700 transition-colors text-white text-xs font-bold uppercase tracking-wide px-4 py-2.5 rounded-sm absolute left-1/2 -translate-x-1/2"
         >
           <Icon name="Phone" size={13} />
           Помогите! Я застрял
@@ -29,12 +30,12 @@ export default function Header({ className }: HeaderProps) {
 
         {/* Белая кнопка + Бургер */}
         <div className="flex items-center gap-3">
-          <a
-            href="#report"
+          <button
+            onClick={onReportClick}
             className="hidden sm:inline-block bg-white text-black text-xs font-bold uppercase tracking-wide px-4 py-2.5 hover:bg-neutral-200 transition-colors rounded-sm whitespace-nowrap"
           >
             Отметить место
-          </a>
+          </button>
           <button
             onClick={() => setOpen((v) => !v)}
             className="text-white p-1"
@@ -53,14 +54,13 @@ export default function Header({ className }: HeaderProps) {
       {/* Dropdown меню */}
       {open && (
         <div className="mt-4 bg-black/80 backdrop-blur-sm border border-white/10 rounded-sm">
-          <a
-            href="#report"
-            onClick={close}
-            className="flex items-center gap-2 px-6 py-4 text-white uppercase text-sm tracking-wide hover:bg-white/10 transition-colors border-b border-white/10"
+          <button
+            onClick={() => { close(); onReportClick?.(); }}
+            className="flex items-center gap-2 w-full text-left px-6 py-4 text-white uppercase text-sm tracking-wide hover:bg-white/10 transition-colors border-b border-white/10"
           >
             <Icon name="MapPin" size={14} />
             Отметить место
-          </a>
+          </button>
           <a
             href="#how"
             onClick={close}
