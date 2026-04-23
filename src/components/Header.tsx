@@ -44,6 +44,11 @@ export default function Header({ className }: HeaderProps) {
         </div>
       </div>
 
+      {/* Оверлей для закрытия по клику вне меню */}
+      {open && (
+        <div className="fixed inset-0 z-[-1]" onClick={close} />
+      )}
+
       {/* Dropdown меню */}
       {open && (
         <div className="mt-4 bg-black/80 backdrop-blur-sm border border-white/10 rounded-sm">
