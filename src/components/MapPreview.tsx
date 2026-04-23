@@ -104,7 +104,6 @@ export default function MapPreview() {
     const tile = L.tileLayer(TILES.satellite.url, {
       attribution: TILES.satellite.attribution,
       maxZoom: 19,
-      detectRetina: true,
     }).addTo(map);
 
     tileRef.current = tile;
