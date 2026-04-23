@@ -81,7 +81,14 @@ export default function Hero({ onReportClick }: { onReportClick?: () => void }) 
         <div>
           <button
             onClick={onReportClick}
-            className="inline-block bg-white text-black text-sm uppercase tracking-widest px-8 py-4 font-semibold hover:bg-neutral-200 transition-colors duration-300"
+            className="text-white text-sm font-bold uppercase tracking-widest px-8 py-4 rounded-xl transition-all"
+            style={{
+              background: "rgba(255,255,255,0.15)",
+              backdropFilter: "blur(20px) saturate(180%)",
+              WebkitBackdropFilter: "blur(20px) saturate(180%)",
+              border: "1px solid rgba(255,255,255,0.3)",
+              boxShadow: "inset 0 1px 0 rgba(255,255,255,0.25)",
+            }}
           >
             Отметить место
           </button>
