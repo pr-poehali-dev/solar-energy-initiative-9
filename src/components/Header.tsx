@@ -32,7 +32,14 @@ export default function Header({ className, onReportClick }: HeaderProps) {
         <div className="flex items-center gap-3">
           <button
             onClick={onReportClick}
-            className="hidden sm:inline-block bg-white text-black text-xs font-bold uppercase tracking-wide px-4 py-2.5 hover:bg-neutral-200 transition-colors rounded-sm whitespace-nowrap"
+            className="hidden sm:inline-block text-white text-xs font-bold uppercase tracking-wide px-4 py-2.5 whitespace-nowrap rounded-xl transition-all"
+            style={{
+              background: "rgba(255,255,255,0.15)",
+              backdropFilter: "blur(20px) saturate(180%)",
+              WebkitBackdropFilter: "blur(20px) saturate(180%)",
+              border: "1px solid rgba(255,255,255,0.3)",
+              boxShadow: "inset 0 1px 0 rgba(255,255,255,0.25)",
+            }}
           >
             Отметить место
           </button>
@@ -56,7 +63,7 @@ export default function Header({ className, onReportClick }: HeaderProps) {
         <div className="mt-4 bg-black/80 backdrop-blur-sm border border-white/10 rounded-sm">
           <button
             onClick={() => { close(); onReportClick?.(); }}
-            className="flex items-center gap-2 w-full text-left px-6 py-4 text-white uppercase text-sm tracking-wide hover:bg-white/10 transition-colors border-b border-white/10"
+            className="flex items-center gap-2 w-full text-left px-6 py-4 text-white font-bold uppercase text-sm tracking-wide hover:bg-white/10 transition-colors border-b border-white/10"
           >
             <Icon name="MapPin" size={14} />
             Отметить место
