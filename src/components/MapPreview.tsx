@@ -108,14 +108,6 @@ export default function MapPreview() {
     }).addTo(map);
 
     tileRef.current = tile;
-    mapRef.current = map;
-
-    return () => {
-      document.removeEventListener("click", handleOutsideClick);
-      map.remove();
-      mapRef.current = null;
-      tileRef.current = null;
-    };
 
     reports.forEach((r) => {
       const color = accessibilityColorMap[r.location_type] || "#999";
@@ -152,6 +144,15 @@ export default function MapPreview() {
         </div>
       `);
     });
+
+    mapRef.current = map;
+
+    return () => {
+      document.removeEventListener("click", handleOutsideClick);
+      map.remove();
+      mapRef.current = null;
+      tileRef.current = null;
+    };
 
   }, [loading, reports]);
 
