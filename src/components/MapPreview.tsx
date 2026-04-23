@@ -100,6 +100,12 @@ export default function MapPreview() {
     };
     document.addEventListener("click", handleOutsideClick);
 
+    const tile = L.tileLayer(TILES.satellite.url, {
+      attribution: TILES.satellite.attribution,
+      maxZoom: 19,
+    }).addTo(map);
+
+    tileRef.current = tile;
     mapRef.current = map;
 
     return () => {
@@ -108,13 +114,6 @@ export default function MapPreview() {
       mapRef.current = null;
       tileRef.current = null;
     };
-
-    const tile = L.tileLayer(TILES.satellite.url, {
-      attribution: TILES.satellite.attribution,
-      maxZoom: 19,
-    }).addTo(map);
-
-    tileRef.current = tile;
 
     reports.forEach((r) => {
       const color = accessibilityColorMap[r.location_type] || "#999";
