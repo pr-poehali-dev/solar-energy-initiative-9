@@ -180,7 +180,7 @@ export default function MapPreview() {
       )}
 
       {/* Заголовок поверх карты */}
-      <div className="absolute bottom-10 left-6 z-[1000] pointer-events-none">
+      <div className="absolute bottom-20 sm:bottom-10 left-6 z-[1000] pointer-events-none">
         <p className="text-white/70 text-xs uppercase tracking-widest mb-1">Публичная карта</p>
         <h2 className="text-2xl lg:text-4xl font-bold text-white leading-tight drop-shadow-lg">
           Подтверждённые<br />места на карте
@@ -195,7 +195,7 @@ export default function MapPreview() {
       </div>
 
       {/* Легенда */}
-      <div className="absolute bottom-10 right-6 z-[1000] flex flex-col gap-2 pointer-events-none">
+      <div className="absolute bottom-20 sm:bottom-10 right-6 z-[1000] flex flex-col gap-2 pointer-events-none">
         {legend.map((l) => (
           <div key={l.label} className="flex items-center gap-2">
             <div
@@ -208,7 +208,7 @@ export default function MapPreview() {
       </div>
 
       {/* Переключатель слоя */}
-      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-[1000] flex rounded overflow-hidden shadow">
+      <div className="absolute bottom-4 sm:bottom-10 left-1/2 -translate-x-1/2 z-[1000] flex rounded overflow-hidden shadow">
         <button
           type="button"
           onClick={() => setMode("satellite")}
