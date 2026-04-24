@@ -81,25 +81,38 @@ export default function MapPreview() {
   useEffect(() => {
     if (loading || !containerRef.current || mapRef.current) return;
 
+    const isMobile = window.matchMedia("(pointer: coarse)").matches;
+
     const map = L.map(containerRef.current, {
       center: [44.895, 37.316],
       zoom: 14,
       scrollWheelZoom: false,
+      dragging: !isMobile,
+      tap: false,
       attributionControl: false,
     });
 
-    map.on("click", () => {
+    const activateMap = () => {
       map.scrollWheelZoom.enable();
+      if (isMobile) map.dragging.enable();
       setActive(true);
-    });
+    };
 
-    const handleOutsideClick = (e: MouseEvent) => {
+    const deactivateMap = () => {
+      map.scrollWheelZoom.disable();
+      if (isMobile) map.dragging.disable();
+      setActive(false);
+    };
+
+    map.on("click", activateMap);
+
+    const handleOutsideClick = (e: MouseEvent | TouchEvent) => {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        map.scrollWheelZoom.disable();
-        setActive(false);
+        deactivateMap();
       }
     };
     document.addEventListener("click", handleOutsideClick);
+    document.addEventListener("touchstart", handleOutsideClick);
 
     const tile = L.tileLayer(TILES.satellite.url, {
       attribution: TILES.satellite.attribution,
@@ -148,6 +161,7 @@ export default function MapPreview() {
 
     return () => {
       document.removeEventListener("click", handleOutsideClick);
+      document.removeEventListener("touchstart", handleOutsideClick);
       map.remove();
       mapRef.current = null;
       tileRef.current = null;
@@ -173,8 +187,10 @@ export default function MapPreview() {
       {!active && !loading && (
         <div className="absolute inset-0 z-[999] flex items-center justify-center pointer-events-none">
           <div className="bg-black/60 backdrop-blur-sm text-white text-sm px-5 py-3 rounded-sm flex items-center gap-2">
-            <Icon name="MousePointer2" size={16} />
-            Нажмите на карту для управления
+            <Icon name="MousePointer2" size={16} className="hidden sm:block" />
+            <Icon name="Hand" size={16} className="block sm:hidden" />
+            <span className="hidden sm:inline">Нажмите на карту для управления</span>
+            <span className="inline sm:hidden">Коснитесь карты для управления</span>
           </div>
         </div>
       )}
