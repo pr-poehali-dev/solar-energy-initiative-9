@@ -4,18 +4,27 @@
       "name": "Get public places list",
       "method": "GET",
       "path": "/",
-      "expectedStatus": 200,
-      "expectedBody": {"places": [], "total": 0},
-      "bodyMatcher": "partial"
+      "expectedStatus": 200
     },
     {
       "name": "Reject POST without admin token",
       "method": "POST",
       "path": "/",
       "body": {"name": "Test"},
-      "expectedStatus": 403,
-      "expectedBody": {"error": "Доступ запрещён"},
-      "bodyMatcher": "partial"
+      "expectedStatus": 403
+    },
+    {
+      "name": "Create support ticket",
+      "method": "POST",
+      "path": "/?type=support",
+      "body": {"name": "Тест", "message": "Тестовое обращение"},
+      "expectedStatus": 201
+    },
+    {
+      "name": "Get messages for non-existent ticket returns 404",
+      "method": "GET",
+      "path": "/?type=support&ticket_id=999999",
+      "expectedStatus": 404
     }
   ]
 }

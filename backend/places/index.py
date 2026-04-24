@@ -53,6 +53,31 @@ def handle_support(event, method, params):
                 return {"statusCode": 201, "headers": CORS_HEADERS,
                         "body": json.dumps({"success": True})}
 
+            # Публичный ответ пользователя в существующий тикет
+            if ticket_id and not check_admin(event):
+                text = body.get("text", "").strip()
+                if not text:
+                    return {"statusCode": 400, "headers": CORS_HEADERS,
+                            "body": json.dumps({"error": "text обязателен"})}
+                cur.execute(
+                    f"SELECT id FROM {SCHEMA}.support_tickets WHERE id=%s",
+                    (ticket_id,),
+                )
+                if not cur.fetchone():
+                    return {"statusCode": 404, "headers": CORS_HEADERS,
+                            "body": json.dumps({"error": "Тикет не найден"})}
+                cur.execute(
+                    f"INSERT INTO {SCHEMA}.support_messages (ticket_id, sender, text) VALUES (%s, 'user', %s) RETURNING id",
+                    (ticket_id, text),
+                )
+                cur.execute(
+                    f"UPDATE {SCHEMA}.support_tickets SET status='new' WHERE id=%s",
+                    (ticket_id,),
+                )
+                conn.commit()
+                return {"statusCode": 201, "headers": CORS_HEADERS,
+                        "body": json.dumps({"success": True})}
+
             # Публичное создание тикета
             name = body.get("name", "").strip()
             email = body.get("email", "").strip()
@@ -75,11 +100,30 @@ def handle_support(event, method, params):
 
         # GET — список тикетов или сообщения конкретного тикета
         if method == "GET":
+            ticket_id = params.get("ticket_id")
+
+            # Публичный доступ к сообщениям своего тикета по ticket_id
+            if ticket_id and not check_admin(event):
+                cur.execute(
+                    f"SELECT id, sender, text, created_at FROM {SCHEMA}.support_messages WHERE ticket_id=%s ORDER BY created_at ASC",
+                    (ticket_id,),
+                )
+                rows = cur.fetchall()
+                if not rows:
+                    return {"statusCode": 404, "headers": CORS_HEADERS,
+                            "body": json.dumps({"error": "Тикет не найден"})}
+                messages = [
+                    {"id": r[0], "sender": r[1], "text": r[2],
+                     "created_at": r[3].isoformat() if r[3] else None}
+                    for r in rows
+                ]
+                return {"statusCode": 200, "headers": CORS_HEADERS,
+                        "body": json.dumps({"messages": messages})}
+
             if not check_admin(event):
                 return {"statusCode": 403, "headers": CORS_HEADERS,
                         "body": json.dumps({"error": "Доступ запрещён"})}
 
-            ticket_id = params.get("ticket_id")
             if ticket_id:
                 cur.execute(
                     f"SELECT id, sender, text, created_at FROM {SCHEMA}.support_messages WHERE ticket_id=%s ORDER BY created_at ASC",
