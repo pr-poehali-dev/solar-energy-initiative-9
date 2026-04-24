@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import func2url from "../../backend/func2url.json";
 import Icon from "@/components/ui/icon";
 
@@ -82,13 +83,12 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* Модалка поддержки */}
-      {open && (
+      {open && createPortal(
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 px-4">
           <div className="bg-white w-full max-w-md p-6 relative">
             <button
               onClick={() => setOpen(false)}
-              className="absolute top-4 right-4 text-neutral-400 hover:text-neutral-900"
+              className="absolute top-4 right-4 text-neutral-400 hover:text-neutral-900 p-1"
             >
               <Icon name="X" size={20} />
             </button>
@@ -150,7 +150,8 @@ export default function Footer() {
               </form>
             )}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
