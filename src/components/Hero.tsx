@@ -1,5 +1,4 @@
-import { useScroll, useTransform, motion } from "framer-motion";
-import { useRef, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import func2url from "../../backend/func2url.json";
 
 export default function Hero({ onReportClick }: { onReportClick?: () => void }) {
@@ -29,28 +28,17 @@ export default function Hero({ onReportClick }: { onReportClick?: () => void }) 
     return () => clearInterval(timer);
   }, [count]);
 
-  const container = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: container,
-    offset: ["start start", "end start"],
-  });
-  const y = useTransform(scrollYProgress, [0, 1], ["0vh", "50vh"]);
-
   return (
-    <div
-      ref={container}
-      className="relative flex items-center justify-center h-screen overflow-hidden"
-    >
-      <motion.div
-        style={{ y }}
-        className="absolute inset-0 w-full h-full"
-      >
+    <div className="relative flex items-center justify-center h-screen overflow-hidden">
+      <div className="absolute inset-0 w-full h-full">
         <img
           src="/images/mountain-landscape.jpg"
           alt="Mountain landscape"
           className="w-full h-full object-cover"
+          loading="eager"
+          decoding="async"
         />
-      </motion.div>
+      </div>
 
       <div className="absolute inset-0 bg-black/40 z-[1]" />
       <div className="absolute bottom-0 left-0 right-0 h-32 z-[2]" style={{ background: "linear-gradient(to bottom, transparent, #ffffff)" }} />

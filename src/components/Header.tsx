@@ -45,7 +45,7 @@ export default function Header({ className, onReportClick }: HeaderProps) {
           </button>
           <button
             onClick={() => setOpen((v) => !v)}
-            className="text-white p-1"
+            className="text-white p-2.5 -mr-1 min-w-[44px] min-h-[44px] flex items-center justify-center"
             aria-label={open ? "Закрыть меню" : "Открыть меню"}
           >
             <Icon name={open ? "X" : "Menu"} size={24} />
